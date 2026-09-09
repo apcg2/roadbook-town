@@ -1,0 +1,7 @@
+
+        <pattern id="map-grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#11120f" stroke-opacity=".045" stroke-width="1"/></pattern>
+        
+        <g id="map-city-node"><rect x="-6" y="-6" width="12" height="12" class="map-node-ink"/><rect x="-2" y="-2" width="4" height="4" class="map-node-paper"/></g>
+        <g id="map-play"><path class="map-play-pole" d="M-1-13V13"/><path class="map-play-color" d="M0-12H14V-5H7V0H0Z"/></g>
+        <g id="map-stay"><path class="map-stay-roof" d="M-16-2H-12V-6H-8V-10H-4V-14H4V-10H8V-6H12V-2H16V2H12V14H-12V2H-16Z"/><path class="map-stay-color" d="M-10 0H10V12H-10Z"/><path class="map-stay-door" d="M-3 5H4V12H-3Z"/></g>
+      

@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Roadbook Town trip v1",
+  "type": "object",
+  "required": [
+    "version",
+    "id",
+    "title",
+    "startDate",
+    "endDate",
+    "places",
+    "stops"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+    },
+    "demo": {
+      "type": "boolean"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "provinces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "city",
+          "address",
+          "kind",
+          "gcj02"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "city",
+              "poi",
+              "area"
+            ]
+          },
+          "gcj02": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "wgs84": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "poiId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "stops": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "placeId",
+          "arrive",
+          "leave",
+          "events"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "role": {
+            "enum": [
+              "start",
+              "visit",
+              "end"
+            ]
+          },
+          "placeId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "arrive": {
+            "type": "string",
+            "format": "date"
+          },
+          "leave": {
+            "type": "string",
+            "format": "date"
+          },
+          "art": {
+            "enum": [
+              "town",
+              "mountains",
+              "lake",
+              "cave",
+              "river",
+              "village",
+              "hamlet",
+              "bridge",
+              "skyline",
+              "arcade"
+            ]
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "sourceIds"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "sourceIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                  }
+                }
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "date",
+                "period",
+                "placeId"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "arrive",
+                    "depart",
+                    "play",
+                    "stay"
+                  ]
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "period": {
+                  "enum": [
+                    "早上",
+                    "上午",
+                    "中午",
+                    "下午",
+                    "傍晚",
+                    "晚上"
+                  ]
+                },
+                "placeId": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 15
+                },
+                "minutes": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "duration": {
+                  "type": "string"
+                },
+                "reviews": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "status"
+                      ],
+                      "properties": {
+                        "status": {
+                          "const": "insufficient"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "status",
+                        "good",
+                        "mixed"
+                      ],
+                      "properties": {
+                        "status": {
+                          "const": "supported"
+                        },
+                        "good": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "text",
+                              "sourceIds"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 5
+                              },
+                              "sourceIds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                }
+                              }
+                            }
+                          },
+                          "minItems": 2,
+                          "maxItems": 2
+                        },
+                        "mixed": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "text",
+                              "sourceIds"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 5
+                              },
+                              "sourceIds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                }
+                              }
+                            }
+                          },
+                          "minItems": 2,
+                          "maxItems": 2
+                        }
+                      }
+                    }
+                  ]
+                },
+                "hotel": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "placeId"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "placeId": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                    }
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "play"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "summary",
+                      "minutes",
+                      "duration",
+                      "reviews"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "entryPlaceId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "provider"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "accepted": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "required": [
+        "provider",
+        "inputHash",
+        "legs"
+      ],
+      "properties": {
+        "provider": {
+          "enum": [
+            "amap",
+            "synthetic"
+          ]
+        },
+        "inputHash": {
+          "type": "string"
+        },
+        "queriedAt": {
+          "type": "string"
+        },
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "legs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "distanceM",
+              "durationS",
+              "points"
+            ],
+            "properties": {
+              "from": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "to": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "distanceM": {
+                "type": "number",
+                "minimum": 0
+              },
+              "durationS": {
+                "type": "number",
+                "minimum": 0
+              },
+              "points": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "planHash": {
+          "type": "string"
+        },
+        "confirmedAt": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

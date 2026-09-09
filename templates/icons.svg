@@ -1,0 +1,148 @@
+<svg class="pixel-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="px-hero" viewBox="0 0 144 88">
+      <path class="paper" d="M0 0h144v88H0z"/>
+      <path class="ink" d="M6 66h132v5H6zM15 58h18v8H15zM111 54h20v12h-20z"/>
+      <path class="ink" d="M16 50h16v8H16zM18 45h12v5H18zM112 46h18v8h-18zM115 41h12v5h-12z"/>
+      <path class="ink" d="M39 55h29v11H39zM43 48h21v7H43zM48 42h11v6H48z"/>
+      <path class="paper" d="M47 57h7v9h-7zM58 58h6v5h-6z"/>
+      <path class="accent-blue water-band" d="M5 74h31v4H5zm39 0h28v4H44zm36 0h25v4H80zm33 0h25v4h-25z"/>
+      <path class="ink" d="M68 52h7v14h-7zM65 48h13v5H65zM67 43h9v5h-9z"/>
+      <path class="accent-green anim-tree" d="M69 34h5v10h-5zM65 38h13v5H65zM67 31h9v7h-9z"/>
+      <path class="ink" d="M84 66h5V45h-5zM80 45h13v4H80zM82 40h9v5h-9zM84 36h5v4h-5z"/>
+      <path class="accent-yellow" d="M50 57h4v4h-4zM117 56h5v5h-5z"/>
+      <path class="accent-coral" d="M22 51h4v4h-4z"/>
+      <path class="ink smoke s1" d="M57 35h4v4h-4z"/><path class="ink smoke s2" d="M61 28h4v4h-4z"/>
+    </symbol>
+
+    <symbol id="px-car" viewBox="0 0 72 72">
+      <path class="paper" d="M0 0h72v72H0z"/><path class="ink" d="M8 43h56v14H8zM17 34h34v9H17zM23 29h21v5H23z"/>
+      <path class="paper" d="M21 36h11v7H21zm15 0h11v7H36z"/><path class="accent-blue" d="M13 47h8v5h-8zm38 0h8v5h-8z"/>
+      <path class="ink wheel-a" d="M16 55h11v8H16zM46 55h11v8H46z"/><path class="paper" d="M20 58h4v3h-4zm30 0h4v3h-4z"/>
+      <path class="accent-yellow blink" d="M59 46h5v5h-5z"/>
+      <path class="ink road-dash" d="M4 66h18v3H4zm28 0h18v3H32zm27 0h9v3h-9z"/>
+    </symbol>
+
+    <symbol id="px-town" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M10 66h76v6H10zM17 43h31v23H17zM54 38h28v28H54zM13 38h39v6H13zM58 31h20v7H58z"/>
+      <path class="paper" d="M22 49h8v17h-8zm13 0h8v9h-8zm25-3h7v8h-7zm10 0h7v8h-7z"/>
+      <path class="accent-coral" d="M35 49h8v9h-8z"/><path class="accent-yellow blink" d="M60 58h7v8h-7z"/>
+      <path class="ink" d="M6 77h31v4H6zm43 0h40v4H49z"/>
+    </symbol>
+
+    <symbol id="px-mountains" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M8 65h80v6H8zM11 54h13V43h10V31h10v23h11v11H11zm45 0h10V38h9v-9h9v25h5v11H56z"/>
+      <path class="paper" d="M38 42h7v23h-7zm37-2h6v25h-6z"/><path class="accent-blue water-band" d="M41 44h7v8h-7zm0 12h7v9h-7zM7 75h25v4H7zm33 0h20v4H40zm28 0h21v4H68z"/>
+      <path class="accent-green anim-tree" d="M20 36h7v8h-7zm-4 5h15v6H16z"/>
+    </symbol>
+
+    <symbol id="px-lake" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M7 61h82v5H7zM15 53h18V40h12v13h10v8H15zM62 48h18v13H62zM66 43h10v5H66z"/>
+      <path class="paper" d="M23 46h7v15h-7zm45 8h7v7h-7z"/><path class="accent-blue water-band" d="M5 71h25v5H5zm33 0h21v5H38zm29 0h24v5H67zM13 80h34v4H13zm43 0h29v4H56z"/>
+      <path class="ink" d="M49 27h6v26h-6z"/><path class="accent-green anim-tree" d="M45 29h14v6H45zm2-6h10v6H47z"/><path class="accent-yellow" d="M68 54h7v7h-7z"/>
+    </symbol>
+
+    <symbol id="px-cave" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M7 69h82v6H7zM12 62h10V47h8V36h9V25h8v37h7V45h8V34h9v-9h8v37h7v7H12z"/>
+      <path class="paper" d="M30 51h10v18H30zm30 3h12v15H60z"/><path class="accent-blue water-band" d="M8 80h20v4H8zm27 0h27v4H35zm35 0h18v4H70z"/>
+      <path class="accent-coral" d="M44 61h8v8h-8z"/><path class="ink blink" d="M64 58h4v4h-4z"/>
+    </symbol>
+
+    <symbol id="px-river" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M8 63h80v5H8zM15 56h14V42h10v14h8v7H15zm51 0h13v7H66zM69 48h7v8h-7z"/>
+      <path class="paper" d="M24 49h7v14h-7z"/><path class="accent-blue water-band" d="M6 72h26v5H6zm34 0h20v5H40zm29 0h20v5H69zM13 81h31v4H13zm40 0h32v4H53z"/>
+      <path class="ink fish" d="M49 73h9v5h-9zm9-3h5v11h-5z"/><path class="accent-yellow" d="M70 56h6v7h-6z"/>
+      <path class="accent-green anim-tree" d="M82 39h6v17h-6zm-5 3h16v6H77zm2-7h12v7H79z"/>
+    </symbol>
+
+    <symbol id="px-village" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M8 69h80v6H8zM13 43h22v26H13zM39 31h23v38H39zM66 48h17v21H66z"/>
+      <path class="paper" d="M18 49h6v6h-6zm0 11h6v6h-6zm26-22h6v6h-6zm0 11h6v6h-6zm0 11h6v9h-6zm11-22h4v6h-4zm0 11h4v6h-4zm16 5h7v7h-7z"/>
+      <path class="accent-yellow blink" d="M55 60h4v6h-4z"/><path class="accent-blue" d="M70 54h7v7h-7z"/><path class="accent-coral" d="M18 60h6v6h-6z"/>
+    </symbol>
+
+    <symbol id="px-hamlet" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M7 70h82v5H7zM12 54h30v16H12zM17 46h20v8H17zM22 39h10v7H22zM52 49h31v21H52zM57 41h21v8H57zM63 34h9v7H63z"/>
+      <path class="paper" d="M19 58h7v12h-7zm13 0h6v7h-6zm27-4h7v16h-7zm13 0h7v8h-7z"/>
+      <path class="ink" d="M15 75h4v9h-4zm20 0h4v9h-4zm20 0h4v9h-4zm21 0h4v9h-4z"/>
+      <path class="accent-green anim-tree" d="M45 39h5v15h-5zm-5 2h15v7H40z"/><path class="accent-coral" d="M72 54h7v8h-7z"/>
+    </symbol>
+
+    <symbol id="px-bridge" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M7 70h82v5H7zM22 60h51v10H22zM28 51h39v9H28zM34 42h27v9H34zM39 33h17v9H39zM44 23h7v10h-7z"/>
+      <path class="paper" d="M29 63h7v7h-7zm16 0h7v7h-7zm16 0h7v7h-7zm12-13h8v20h-8z"/>
+      <path class="accent-coral" d="M40 45h16v6H40z"/><path class="accent-yellow blink" d="M45 63h7v7h-7z"/>
+      <path class="accent-green anim-tree" d="M12 48h6v22h-6zM7 50h16v7H7zm2-8h12v8H9z"/>
+    </symbol>
+
+    <symbol id="px-skyline" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M7 68h82v6H7zM10 52h25v16H10zM39 37h22v31H39zM66 47h20v21H66z"/>
+      <path class="paper" d="M16 57h7v11h-7zm13 0h5v6h-5zm16-13h5v6h-5zm0 11h5v6h-5zm9-11h5v6h-5zm18 9h7v7h-7z"/>
+      <path class="accent-blue water-band" d="M6 79h23v4H6zm31 0h25v4H37zm33 0h19v4H70z"/><path class="accent-yellow blink" d="M54 56h5v7h-5z"/><path class="accent-coral" d="M72 53h7v7h-7z"/>
+    </symbol>
+
+    <symbol id="px-arcade" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/>
+      <path class="ink" d="M7 68h82v6H7zM12 42h72v26H12zM8 37h80v6H8zM16 30h64v7H16zM22 24h52v6H22z"/>
+      <path class="paper" d="M18 48h9v20h-9zm17 0h9v20h-9zm17 0h9v20h-9zm17 0h9v20h-9z"/>
+      <path class="ink" d="M16 55h62v5H16zM28 43h5v25h-5zm17 0h5v25h-5zm17 0h5v25h-5z"/>
+      <path class="accent-coral" d="M18 48h9v7h-9z"/><path class="accent-yellow blink" d="M52 48h9v7h-9z"/><path class="accent-green" d="M69 48h9v7h-9z"/>
+      <path class="accent-blue water-band" d="M6 79h24v4H6zm32 0h23v4H38zm31 0h20v4H69zM13 87h31v3H13zm41 0h31v3H54z"/>
+    </symbol>
+
+    <symbol id="px-home" viewBox="0 0 96 96">
+      <path class="paper" d="M0 0h96v96H0z"/><path class="ink" d="M9 70h78v6H9zM20 44h56v26H20zM14 40h68v7H14zM24 33h48v7H24zM31 26h34v7H31z"/>
+      <path class="paper" d="M29 51h12v19H29zm23 0h14v12H52z"/><path class="accent-blue" d="M55 54h8v7h-8z"/><path class="accent-yellow blink" d="M34 55h7v8h-7z"/>
+      <path class="ink smoke s1" d="M68 20h5v5h-5z"/><path class="ink smoke s2" d="M73 12h5v5h-5z"/>
+    </symbol>
+
+    <symbol id="wx-sun" viewBox="0 0 24 24">
+      <g class="wx-sun"><path class="ink" d="M10 1h4v4h-4zM10 19h4v4h-4zM1 10h4v4H1zM19 10h4v4h-4zM4 4h3v3H4zm13 0h3v3h-3zM4 17h3v3H4zm13 0h3v3h-3z"/><path class="ink" d="M7 7h10v10H7z"/><path class="accent-yellow" d="M9 9h6v6H9z"/></g>
+    </symbol>
+    <symbol id="wx-cloud" viewBox="0 0 24 24">
+      <g class="wx-cloud"><path class="ink" d="M3 11h4V7h4V5h5v3h3v3h3v7H3z"/><path class="paper" d="M7 12h11v3H7z"/><path class="accent-blue" d="M8 9h8v3H8z"/></g>
+    </symbol>
+    <symbol id="wx-overcast" viewBox="0 0 24 24">
+      <g class="wx-cloud"><path class="ink" d="M2 9h4V6h6v3h3V7h4v3h3v8H2z"/><path class="paper" d="M5 13h14v3H5z"/><path class="sand" fill="#C4C19B" d="M7 10h10v3H7z"/></g>
+    </symbol>
+    <symbol id="wx-fog" viewBox="0 0 24 24">
+      <g class="wx-fog"><path class="ink" d="M3 6h18v3H3zM1 11h17v3H1zM6 16h17v3H6z"/><path class="accent-blue" d="M18 11h4v3h-4zM2 16h4v3H2z"/></g>
+    </symbol>
+    <symbol id="wx-rain" viewBox="0 0 24 24">
+      <path class="ink wx-cloud" d="M3 7h4V4h7v2h5v3h3v6H3z"/><path class="paper" d="M7 10h11v3H7z"/><g class="wx-rain accent-blue"><path d="M5 17h3v5H5zM11 16h3v5h-3zM17 17h3v5h-3z"/></g>
+    </symbol>
+    <symbol id="wx-snow" viewBox="0 0 24 24">
+      <path class="ink wx-cloud" d="M3 7h4V4h7v2h5v3h3v6H3z"/><path class="paper" d="M7 10h11v3H7z"/><g class="wx-snow"><path class="accent-blue" d="M5 18h4v4H5zm10 0h4v4h-4z"/><path class="ink" d="M11 16h3v3h-3z"/></g>
+    </symbol>
+    <symbol id="wx-thunder" viewBox="0 0 24 24">
+      <path class="ink wx-cloud" d="M3 7h4V4h7v2h5v3h3v6H3z"/><path class="paper" d="M7 10h11v3H7z"/><path class="accent-yellow wx-bolt" d="M11 14h6l-4 4h3l-7 5 2-6H8z"/>
+    </symbol>
+
+    <symbol id="px-route-car" viewBox="0 0 52 52">
+      <path class="paper" d="M0 0h52v52H0z"/>
+      <path class="ink car-wheel" d="M9 14h5v11H9zm29 0h5v11h-5zM9 31h5v10H9zm29 0h5v10h-5z"/>
+      <path class="ink" d="M16 5h20v5h4v34h-4v4H16v-4h-4V10h4z"/>
+      <path class="paper" d="M18 12h16v9H18zm0 15h16v12H18z"/>
+      <path class="accent-blue" d="M20 14h12v6H20z"/>
+      <path class="accent-yellow blink" d="M16 8h6v4h-6zm14 0h6v4h-6z"/>
+      <path class="accent-coral" d="M18 41h5v4h-5zm11 0h5v4h-5z"/>
+    </symbol>
+
+    <symbol id="px-amap-link" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M3 3h10v3H6v12h12v-7h3v10H3zM12 3h9v9h-3V8l-8 8-2-2 8-8h-4z"/>
+      <path class="accent-blue" d="M18 3h3v3h-3z"/>
+    </symbol>
+    <symbol id="px-xhs-search" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M3 4h12v15H3zM6 7h6v2H6zm0 4h6v2H6zm0 4h4v2H6zM16 14h3v3h-3zM19 17h2v4h-2z"/>
+      <path class="accent-coral" d="M6 7h6v2H6z"/>
+    </symbol>
+    <symbol id="px-review-good" viewBox="0 0 18 18">
+      <path fill="currentColor" d="M2 2h14v14H2z"/><path class="paper" d="M5 6h2v2H5zm6 0h2v2h-2zM5 10h2v2h4v-2h2v4H5z"/>
+      <path class="accent-yellow" d="M7 3h4v2H7z"/>
+    </symbol>
+    <symbol id="px-review-mixed" viewBox="0 0 18 18">
+      <path fill="currentColor" d="M2 2h14v14H2z"/><path class="paper" d="M5 6h2v2H5zm6 0h2v2h-2zM5 11h8v2H5z"/>
+      <path class="accent-coral" d="M13 3h2v3h-2z"/>
+    </symbol>
+  </defs>
+</svg>

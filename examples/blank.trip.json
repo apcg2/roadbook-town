@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "my-roadbook",
+  "demo": false,
+  "title": "",
+  "startDate": "",
+  "endDate": "",
+  "provinces": [],
+  "places": [],
+  "sources": [],
+  "stops": []
+}
