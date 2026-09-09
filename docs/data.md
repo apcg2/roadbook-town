@@ -1,10 +1,10 @@
 # 数据约定
 
-参考 `examples/demo.trip.json`（完全虚构）和 `schemas/trip.schema.json`。`blank.trip.json`是未填草稿，校验失败是预期行为。
+参考 `examples/demo.trip.json`（已公开授权的广东山水自驾游样例）和 `schemas/trip.schema.json`。`tests/fixtures/virtual.trip.json`是仅供自动测试的虚构数据；`blank.trip.json`是未填草稿，校验失败是预期行为。
 
 - `id`：稳定英文旅程ID，用于本地清单隔离；同一旅程更新不要改ID。
 - `startDate/endDate`：含年份的ISO日期，首末日包含在行程内。
-- `demo`：只允许公开虚拟示例为true；真实行程必须false。
+- `demo`：公开虚拟示例为true；经授权公开的真实示例与用户正式行程必须false。
 - `places`：地点字典，kind为city/poi/area；name、city、address，GCJ-02高德坐标；城市天气另存WGS84。真实数据verified=true代表Agent已核验，并非工具自动查证。
 - `stops`：有序到访段。role依次为start、visit…、end；即使同城重复也有不同id。placeId引用city地点。region用于所属市州。
 - `entryPlaceId`：可选的入城首站，例如沿途景点或停车入口；未提供时先到城市节点。用于先游览后入住的顺路安排，避免先绕到市中心。

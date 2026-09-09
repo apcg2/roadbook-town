@@ -2,7 +2,7 @@
 
 把这个仓库链接发给你的 AI Agent，生成自己的自驾行程和像素小镇网页。
 
-**当前版本：可在本地运行的 v0.1。** 固定模板、结构化校验、静态地图、查询适配器和发布命令已实现。真实高德/Redfox调用与Cloudflare发布需使用你自己的账号；本项目不会附带他人的密钥或行程。当前演示是明确标注的虚拟数据，不能作为道路或旅行建议。
+**当前版本：可在本地运行的 v0.1。** 固定模板、结构化校验、静态地图、查询适配器和发布命令已实现。真实高德/Redfox调用与Cloudflare发布需使用你自己的账号；本项目不附带任何 API Key 或原始检索材料。当前演示为已获公开授权的“广东山水自驾游”样例，仅供体验工具与数据结构；请在出行前自行复核道路、营业与天气信息。
 
 ## 给 Agent 的启动消息
 
@@ -29,7 +29,7 @@ npm run preview
 node src/cli.mjs init
 ```
 
-由 Agent 按 `docs/planning.md` 收集需求，填写 `private/trip.json`，按 `docs/setup.md` 配置本地 Key。`examples/demo.trip.json` 展示结构；只借鉴字段，不把其中虚拟地名、来源或路线用于真实行程。
+由 Agent 按 `docs/planning.md` 收集需求，填写 `private/trip.json`，按 `docs/setup.md` 配置本地 Key。`examples/demo.trip.json` 是已公开授权的广东山水自驾游样例；可借鉴字段和流程，但须重新核验并生成自己的路线，不要直接当作旅行建议。
 
 ```bash
 node src/cli.mjs poi 地点名 --city 所属城市

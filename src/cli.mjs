@@ -31,7 +31,7 @@ async function main(){
     const trip=await json(join(root,'examples/demo.trip.json'));
     const result=await render(trip);
     await save(join(root,'output/demo/index.html'),result.html);await save(join(root,'output/demo/report.json'),result.report);await save(join(root,'output/demo/plan.md'),textPlan(trip));
-    console.log('已生成 output/demo/index.html（虚拟测试数据）');return;
+    console.log('已生成 output/demo/index.html（公开示例行程）');return;
   }
   if(command==='init'){
     const destination=resolve(args[0]||join(root,'private/trip.json'));

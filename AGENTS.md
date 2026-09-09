@@ -19,7 +19,7 @@
 
 每条口碑最长5字，两条正面和两条中性/负面；每类一个图标。来源不足用insufficient，不能凑数。筛选合作/置换/团购/引流/重复营销，保留private来源记录。自动筛选只是线索，必须由Agent复核。
 
-正式数据禁止demo=true。示例道路是合成数据，禁止改名后声称为高德路线。占位经纬度不能冒充查证位置。routes、sources、approval仅用工具或可靠材料更新。
+正式数据禁止demo=true。`examples/demo.trip.json` 是已获公开授权的真实广东样例，路线与资料只能作为体验工具的样本；不得将它当成其他用户的旅行建议。`tests/fixtures/virtual.trip.json` 的道路是合成数据，禁止改名后声称为高德路线。占位经纬度不能冒充查证位置。routes、sources、approval仅用工具或可靠材料更新。
 
 ## 修改和发布
 

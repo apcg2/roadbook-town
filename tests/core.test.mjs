@@ -9,8 +9,15 @@ import {createRedfox,screenNotes} from '../src/providers/redfox.mjs';
 import {scanText,audit} from '../src/audit.mjs';
 import {fileURLToPath} from 'node:url';
 
-const fixture=JSON.parse(await readFile(new URL('../examples/demo.trip.json',import.meta.url),'utf8'));
+const fixture=JSON.parse(await readFile(new URL('./fixtures/virtual.trip.json',import.meta.url),'utf8'));
+const publicDemo=JSON.parse(await readFile(new URL('../examples/demo.trip.json',import.meta.url),'utf8'));
 const copy=()=>structuredClone(fixture);
+test('公开广东示例路线完整且不携带私有检索字段',()=>{
+  assert.equal(publicDemo.demo,false);
+  assert.deepEqual(validate(publicDemo,{requireRoute:true,requireApproval:true}).errors,[]);
+  assert.equal(publicDemo.route.legs.reduce((total,leg)=>total+leg.distanceM,0),994642);
+  assert.ok(!JSON.stringify(publicDemo).includes('privateFile'));
+});
 test('虚拟示例合法并包含景点往返',()=>{
   assert.deepEqual(validate(copy(),{requireRoute:true}).errors,[]);
   assert.deepEqual(routeStops(copy()),['east','pine','forest','pine','reed','bank','reed','east']);
