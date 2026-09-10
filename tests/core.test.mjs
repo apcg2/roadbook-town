@@ -129,6 +129,20 @@ test('景点研究使用五组查询并采集正文和评论',async()=>{
   const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区',timeoutMs:20,sleep:async()=>{}});
   assert.equal(bundle.searches.length,5);assert.equal(bundle.status,'complete');assert.ok(bundle.notes.every(n=>n.detail));assert.ok(bundle.commentTasks.every(t=>t.status==='complete'));
 });
+test('评论无权限或额度不足时立即降级为仅正文',async()=>{
+  for(const message of ['Redfox接口失败（代码 3201）；请检查权限','评论采集额度不足']){let commentCalls=0;
+    const api={search:async keyword=>({list:[{workId:'w'+keyword,accountUserid:'a'+keyword,workTitle:keyword,workDesc:'正文体验'}]}),detail:async workId=>({workId,workDesc:'完整正文'}),comments:async()=>{commentCalls++;throw new Error(message);},commentResult:async()=>{throw new Error('不应调用');}};
+    const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区'});
+    assert.equal(bundle.status,'complete');assert.equal(bundle.commentMode,'post-only');assert.equal(bundle.commentFallbackReason,'permission-or-quota');assert.equal(commentCalls,1);assert.ok(bundle.notes.every(n=>n.detail));
+  }
+});
+test('评论接口异常和等待超时不会阻塞正文研究',async()=>{
+  const base={search:async keyword=>({list:[{workId:'w'+keyword,accountUserid:'a'+keyword,workTitle:keyword,workDesc:'正文体验'}]}),detail:async workId=>({workId,workDesc:'完整正文'})};
+  const failed=await researchAttraction({...base,comments:async()=>{throw new Error('上游故障');},commentResult:async()=>{}},{city:'阳朔',place:'西街'});
+  assert.equal(failed.status,'complete');assert.equal(failed.commentFallbackReason,'provider-error');
+  let clock=0,task=0;const timed=await researchAttraction({...base,comments:async()=>({taskId:'t'+(++task)}),commentResult:async()=>({status:'processing'})},{city:'阳朔',place:'兴坪古镇',timeoutMs:10,now:()=>clock,sleep:async ms=>{clock+=ms;}});
+  assert.equal(timed.status,'complete');assert.equal(timed.commentMode,'post-only');assert.equal(timed.commentFallbackReason,'timeout');assert.ok(timed.commentTasks.every(t=>t.status==='error'));
+});
 test('pending口碑阻止出稿，v1迁移会清除确认并要求重新研究',()=>{
   const t=copy();t.stops[1].events[1].reviews={status:'pending',reason:'任务未完成',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
   assert.match(validate(t).errors.join(),/口碑研究未完成/);
@@ -138,5 +152,10 @@ test('pending口碑阻止出稿，v1迁移会清除确认并要求重新研究',
 test('supported口碑须区分正文评论并覆盖至少两位作者',()=>{
   const one=copy();one.sources.filter(s=>s.id==='forest-post-b').forEach(s=>s.authorRef='author-a');assert.match(validate(one).errors.join(),/至少2位不同作者/);
   const noComment=copy();const r=noComment.stops[1].events[1].reviews;r.limitations.forEach(x=>{x.sourceType='post';x.sourceIds=['forest-post-a'];});assert.match(validate(noComment).errors.join(),/至少1条须来自网友评论/);
+});
+test('仅正文降级仍可用两位作者生成完整口碑',()=>{
+  const t=copy(),r=t.stops[1].events[1].reviews;r.research.commentMode='post-only';r.research.commentFallbackReason='permission-or-quota';
+  r.limitations=[{text:'需步行',sentiment:'neutral',sourceType:'post',sourceIds:['forest-post-a']},{text:'路面有坡',sentiment:'negative',sourceType:'post',sourceIds:['forest-post-b']}];
+  assert.deepEqual(validate(t).errors,[]);
 });
 test('扫描识别当前Key且工具白名单无发现',async()=>{assert.ok(scanText('prefix-secret-value',['prefix-secret-value']).length);const r=await audit(fileURLToPath(new URL('../',import.meta.url)));assert.deepEqual(r.findings,[]);});

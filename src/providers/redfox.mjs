@@ -27,6 +27,7 @@ const workIdOf=item=>String(item?.workId||item?.id||'');
 const authorOf=item=>String(item?.accountUserid||item?.authorId||item?.userId||'');
 const doneStatus=value=>/^(success|succeeded|complete|completed|done|finished)$/i.test(String(value||''));
 const pendingStatus=value=>/^(pending|waiting|processing|running|submitted)$/i.test(String(value||''));
+const commentFallbackReason=error=>/(代码 3201|权限|额度|quota|permission)/i.test(String(error?.message||error||''))?'permission-or-quota':'provider-error';
 
 export async function researchAttraction(redfox,{city,place,resume,now=()=>Date.now(),sleep=ms=>new Promise(r=>setTimeout(r,ms)),timeoutMs=120000,onProgress=async()=>{}}={}){
   const bundle=resume?structuredClone(resume):{version:1,provider:'redfox',scope:'attraction',city,place,untrusted:true,status:'pending',createdAt:new Date(now()).toISOString(),searches:[],notes:[],commentTasks:[]};
@@ -44,9 +45,10 @@ export async function researchAttraction(redfox,{city,place,resume,now=()=>Date.
   }
   for(const note of bundle.notes.filter(n=>n.screening!=='exclude')){
     if(!note.detail){try{note.detail=await redfox.detail(note.workId);}catch(error){note.detailError=String(error.message||'详情查询失败');}await onProgress(bundle);}
+    if(bundle.commentMode==='post-only')continue;
     if(!bundle.commentTasks.some(t=>t.workId===note.workId)){
       try{const data=await redfox.comments(note.workId);bundle.commentTasks.push({workId:note.workId,taskId:String(data?.taskId||''),status:'pending',submittedAt:new Date(now()).toISOString(),data});}
-      catch(error){bundle.commentTasks.push({workId:note.workId,status:'error',error:String(error.message||'评论任务失败')});}await onProgress(bundle);
+      catch(error){bundle.commentTasks.push({workId:note.workId,status:'error',error:String(error.message||'评论任务失败')});bundle.commentMode='post-only';bundle.commentFallbackReason=commentFallbackReason(error);await onProgress(bundle);}
     }
   }
   const deadline=now()+timeoutMs;
@@ -56,12 +58,15 @@ export async function researchAttraction(redfox,{city,place,resume,now=()=>Date.
       try{const data=await redfox.commentResult(task.taskId),state=data?.status||data?.taskStatus||data?.state;task.lastCheckedAt=new Date(now()).toISOString();
         if(doneStatus(state)||Array.isArray(data?.list)||Array.isArray(data?.comments)){task.status='complete';task.data=data;}
         else if(state&&!pendingStatus(state)){task.status='error';task.error=`评论任务状态异常：${String(state).slice(0,30)}`;}
-      }catch(error){task.lastError=String(error.message||'评论查询失败');}
+      }catch(error){task.status='error';task.error=String(error.message||'评论查询失败');bundle.commentMode='post-only';bundle.commentFallbackReason=commentFallbackReason(error);}
       await onProgress(bundle);
     }
     if(bundle.commentTasks.some(t=>t.status==='pending')&&now()<deadline)await sleep(Math.min(5000,Math.max(0,deadline-now())));
   }
-  bundle.status=bundle.commentTasks.some(t=>t.status==='pending')?'pending':'complete';bundle.updatedAt=new Date(now()).toISOString();
+  if(bundle.commentTasks.some(t=>t.status==='pending')){for(const task of bundle.commentTasks.filter(t=>t.status==='pending')){task.status='error';task.error='评论任务等待超时';}bundle.commentMode='post-only';bundle.commentFallbackReason='timeout';}
+  if(!bundle.commentMode)bundle.commentMode=bundle.commentTasks.some(t=>t.status==='error')?'post-only':'full';
+  if(bundle.commentMode==='post-only'&&!bundle.commentFallbackReason)bundle.commentFallbackReason=commentFallbackReason(bundle.commentTasks.find(t=>t.status==='error')?.error);
+  bundle.status='complete';bundle.updatedAt=new Date(now()).toISOString();
   bundle.summary={attempts:bundle.searches.map(({keyword,status,count,error})=>({keyword,status,count,error})),candidateCount:bundle.notes.length,acceptedCount:bundle.notes.filter(n=>n.screening!=='exclude').length,authorCount:new Set(bundle.notes.filter(n=>n.screening!=='exclude').map(n=>n.authorRef).filter(Boolean)).size,commentCompleteCount:bundle.commentTasks.filter(t=>t.status==='complete').length,commentErrorCount:bundle.commentTasks.filter(t=>t.status==='error').length};
   await onProgress(bundle);return bundle;
 }

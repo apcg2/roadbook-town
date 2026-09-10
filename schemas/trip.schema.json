@@ -265,6 +265,8 @@
                         "candidateCount": {"type": "integer", "minimum": 0},
                         "acceptedCount": {"type": "integer", "minimum": 0},
                         "authorCount": {"type": "integer", "minimum": 0}
+                        ,"commentMode": {"enum": ["full", "post-only"]}
+                        ,"commentFallbackReason": {"enum": ["permission-or-quota", "provider-error", "timeout"]}
                       }
                     },
                     "positive": {"$ref": "#/$defs/reviewItems"},

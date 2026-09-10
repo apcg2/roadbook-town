@@ -134,7 +134,9 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
           check(r.positive?.length === 2 && r.limitations?.length === 2, '口碑须2条正面、2条中性/负面');
           check(r.positive?.every(item=>item.sentiment==='positive'&&item.sourceType==='post'), '正面口碑须来自帖子正文并标记positive');
           check(r.limitations?.every(item=>['neutral','negative'].includes(item.sentiment)&&['post','comment'].includes(item.sourceType)), '限制口碑须标记中性/负面及来源类型');
-          check(r.limitations?.some(item=>item.sourceType==='comment'), '限制信息至少1条须来自网友评论');
+          const postOnly=research?.commentMode==='post-only'&&['permission-or-quota','provider-error','timeout'].includes(research?.commentFallbackReason);
+          check(postOnly||r.limitations?.some(item=>item.sourceType==='comment'), '限制信息至少1条须来自网友评论；评论失败时须记录post-only降级原因');
+          if(postOnly)check([...(r.positive||[]),...(r.limitations||[])].every(item=>item.sourceType==='post'), '仅正文模式的全部口碑都必须引用帖子正文');
           const reviewSources=[];
           for (const item of [...(r.positive || []),...(r.limitations || [])]) {
             check(typeof item.text === 'string' && [...item.text].length > 0 && [...item.text].length <= 5, '口碑短语需1—5字');

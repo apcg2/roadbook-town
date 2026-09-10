@@ -165,7 +165,7 @@
           "minutes": 150,
           "reviews": {
             "status": "supported",
-            "research": {"status":"complete","attempts":[{"keyword":"松风县 松间步道","status":"ok","count":3}],"candidateCount":3,"acceptedCount":3,"authorCount":2},
+            "research": {"status":"complete","attempts":[{"keyword":"松风县 松间步道","status":"ok","count":3}],"candidateCount":3,"acceptedCount":3,"authorCount":2,"commentMode":"full"},
             "positive": [
               {
                 "text": "树荫充足",
