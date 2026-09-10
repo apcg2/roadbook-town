@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Roadbook Town trip v1",
+  "title": "Roadbook Town trip v2",
   "type": "object",
   "required": [
     "version",
@@ -11,9 +11,26 @@
     "places",
     "stops"
   ],
+  "$defs": {
+    "reviewItems": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["text", "sentiment", "sourceType", "sourceIds"],
+        "properties": {
+          "text": {"type": "string", "minLength": 1, "maxLength": 5},
+          "sentiment": {"enum": ["positive", "neutral", "negative"]},
+          "sourceType": {"enum": ["post", "comment"]},
+          "sourceIds": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"}}
+        }
+      }
+    }
+  },
   "properties": {
     "version": {
-      "const": 1
+      "const": 2
     },
     "id": {
       "type": "string",
@@ -233,84 +250,26 @@
                   "type": "string"
                 },
                 "reviews": {
-                  "oneOf": [
-                    {
+                  "type": "object",
+                  "required": ["status", "research"],
+                  "properties": {
+                    "status": {"enum": ["supported", "insufficient", "pending"]},
+                    "reasonCode": {"enum": ["provider-unavailable", "author-shortfall", "limitation-shortfall", "irrelevant-results", "non-advertorial-shortfall"]},
+                    "reason": {"type": "string"},
+                    "research": {
                       "type": "object",
-                      "required": [
-                        "status"
-                      ],
+                      "required": ["status", "attempts", "candidateCount", "acceptedCount", "authorCount"],
                       "properties": {
-                        "status": {
-                          "const": "insufficient"
-                        }
+                        "status": {"enum": ["pending", "complete"]},
+                        "attempts": {"type": "array"},
+                        "candidateCount": {"type": "integer", "minimum": 0},
+                        "acceptedCount": {"type": "integer", "minimum": 0},
+                        "authorCount": {"type": "integer", "minimum": 0}
                       }
                     },
-                    {
-                      "type": "object",
-                      "required": [
-                        "status",
-                        "good",
-                        "mixed"
-                      ],
-                      "properties": {
-                        "status": {
-                          "const": "supported"
-                        },
-                        "good": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "text",
-                              "sourceIds"
-                            ],
-                            "properties": {
-                              "text": {
-                                "type": "string",
-                                "minLength": 1,
-                                "maxLength": 5
-                              },
-                              "sourceIds": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string",
-                                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
-                                }
-                              }
-                            }
-                          },
-                          "minItems": 2,
-                          "maxItems": 2
-                        },
-                        "mixed": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "text",
-                              "sourceIds"
-                            ],
-                            "properties": {
-                              "text": {
-                                "type": "string",
-                                "minLength": 1,
-                                "maxLength": 5
-                              },
-                              "sourceIds": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string",
-                                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
-                                }
-                              }
-                            }
-                          },
-                          "minItems": 2,
-                          "maxItems": 2
-                        }
-                      }
-                    }
-                  ]
+                    "positive": {"$ref": "#/$defs/reviewItems"},
+                    "limitations": {"$ref": "#/$defs/reviewItems"}
+                  }
                 },
                 "hotel": {
                   "type": "object",
@@ -417,6 +376,13 @@
           },
           "accepted": {
             "type": "boolean"
+          },
+          "authorRef": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "evidenceType": {
+            "enum": ["post", "comment"]
           },
           "reason": {
             "type": "string"

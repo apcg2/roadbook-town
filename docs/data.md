@@ -10,11 +10,11 @@
 - `stops`：有序到访段。role依次为start、visit…、end；即使同城重复也有不同id。placeId引用city地点。region用于所属市州。
 - `entryPlaceId`：可选的入城首站，例如沿途景点或停车入口；未提供时先到城市节点。用于先游览后入住的顺路安排，避免先绕到市中心。
 - `events`：按日期、早上/上午/中午/下午/傍晚/晚上排序。type为arrive/play/stay/depart，每项引用placeId。
-- `play`：summary最多15字，duration为显示时长，minutes为排程估值，reviews为supported或insufficient。supported每类2条短语，每条text最多5字并引用sourceIds。
+- `play`：summary最多15字，duration为显示时长，minutes为排程估值。v2的reviews为supported、insufficient或pending；pending会阻止出稿。supported含2条positive和2条limitations，每条记录sentiment、sourceType及sourceIds，覆盖至少2位作者；正面来自帖子正文，限制项至少一条来自评论。insufficient必须附具体原因和已完成研究摘要。
 - `stay`：默认placeId为住宿城市；有用户提供的具体酒店时增加hotel:{name,placeId}，实际酒店位置进入道路计算，地图小屋仍紧邻城市标签。
 - `sightShortfallReason`：途中城市仅安排1个景点时必填，说明时间或证据不足；正常2—3个时省略。
 - `foods`：途中城市必须恰好5项菜品，每项含name和sourceIds；不含门店，名称标准化后不得重复。
-- `sources`：私有记录，含id、provider、url、fetchedAt、accepted、筛选说明。小红书来源provider=redfox且accepted=true才能支持口碑。不要把原文、账号或凭据放到生成HTML。
+- `sources`：私有记录，含id、provider、url、fetchedAt、accepted、筛选说明；口碑来源还需匿名authorRef及evidenceType（post/comment）。小红书来源provider=redfox且accepted=true才能支持口碑。不要把原文、账号或凭据放到生成HTML。
 - `route`：由算路命令生成，存inputHash、legs、boundaries。每段from/to/distanceM/durationS/points。包括当地往返，不以展示的城际里程之和冒充总里程。
 - `approval`：用户确认后工具记录planHash；任何行程变更使确认失效。
 - `mapLabels`：遇到自动地图排版失败时，可指定某城市的{x,y}标签左上角（960×700画布），仍会执行碰撞检查；不能移动真实坐标。

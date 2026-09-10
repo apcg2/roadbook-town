@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { assertValid, validate, hash, planHash } from './model.mjs';
+import { assertValid, validate, hash, planHash, migrateV1ToV2 } from './model.mjs';
 import { render, textPlan } from './render.mjs';
 import { audit, scanText } from './audit.mjs';
 import { createAmap } from './providers/amap.mjs';
-import { createRedfox, researchFood } from './providers/redfox.mjs';
+import { createRedfox, researchFood, researchAttraction } from './providers/redfox.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const [command,...args]=process.argv.slice(2);
@@ -78,6 +78,18 @@ async function main(){
     await save(flag('--out')||join(root,'private/research-food.json'),{provider:'redfox',scope:'food',city,queriedAt:new Date().toISOString(),untrusted:true,results});
     console.log(`已保存${results.length}组美食查询；须核对目的地关联、去广告和菜品去重，Redfox不足时使用当地官方资料补足。`);return;
   }
+  if(command==='research-attraction'){
+    const city=flag('--city'),place=flag('--place'),resumePath=flag('--resume');if(!city||!place)throw new Error('用法：research-attraction --city 城市 --place 景点 [--resume 文件] [--out 私有文件]');
+    const resumed=resumePath?await json(resolve(resumePath)):undefined;
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-'),slug=`${city}-${place}`.replace(/[^\p{L}\p{N}-]+/gu,'-');
+    const out=resolve(flag('--out')||resumePath||join(root,'private/research/attractions',slug,`${stamp}.json`));
+    const bundle=await researchAttraction(createRedfox({key:process.env.REDFOX_API_KEY}),{city,place,resume:resumed,onProgress:value=>save(out,value)});
+    console.log(bundle.status==='pending'?`研究任务尚未完成，已安全保存；稍后使用 --resume ${out}`:`景点研究材料已完整保存到 ${out}；须由Agent去广告、核验作者并归纳短评。`);if(bundle.status==='pending')process.exitCode=2;return;
+  }
+  if(command==='migrate-v2'){
+    if(!args[0])throw new Error('用法：migrate-v2 v1行程.json [--out v2行程.json]');
+    const input=resolve(args[0]),out=resolve(flag('--out')||input.replace(/\.json$/i,'.v2.json'));await save(out,migrateV1ToV2(await json(input)));console.log(`已迁移到v2：${out}；旧口碑已标为pending，重新研究并经用户确认后才能渲染。`);return;
+  }
   if(command==='preview'){
     const file=resolve(args[0]||join(root,'output/demo/index.html'));
     await access(file);const port=Number(flag('--port')||4173);
@@ -101,7 +113,7 @@ async function main(){
     if(!verified)throw new Error('上传已执行，但生产地址尚未核对一致；请核查部署状态后再宣布成功');
     await save(join(root,'private/publication.json'),{project,url,htmlHash:hash(result.html),publishedAt:new Date().toISOString()});console.log(`发布并核对成功：${url}`);return;
   }
-  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID|--comments ID|--task ID] | research-food --city 城市 [--dish 菜品] | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
+  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID|--comments ID|--task ID] | research-food --city 城市 [--dish 菜品] | research-attraction --city 城市 --place 景点 [--resume 文件] | migrate-v2 文件 | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
 }
 main().catch(error=>{
   let message=String(error.message||'操作失败');for(const key of [process.env.AMAP_WEB_SERVICE_KEY,process.env.REDFOX_API_KEY])if(key)message=message.split(key).join('[已隐藏]');

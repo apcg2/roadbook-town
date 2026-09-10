@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {Script} from 'node:vm';
-import {validate,routeStops,routeInputHash,planHash,escape,safeJSON} from '../src/model.mjs';
+import {validate,routeStops,routeInputHash,planHash,escape,safeJSON,migrateV1ToV2} from '../src/model.mjs';
 import {render,amapLink} from '../src/render.mjs';
 import {createAmap} from '../src/providers/amap.mjs';
-import {createRedfox,screenNotes,foodSearchQueries,researchFood} from '../src/providers/redfox.mjs';
+import {createRedfox,screenNotes,foodSearchQueries,researchFood,attractionSearchQueries,researchAttraction} from '../src/providers/redfox.mjs';
 import {scanText,audit} from '../src/audit.mjs';
 import {fileURLToPath} from 'node:url';
 
@@ -31,7 +31,7 @@ test('住宿遗漏、重复和错误日期被拒绝',()=>{
   }
 });
 test('重复城市允许，重复到访段ID拒绝',()=>{const t=copy();assert.equal(validate(t).errors.length,0);t.stops[3].id=t.stops[0].id;assert.match(validate(t).errors.join(),/ID重复/);});
-test('真实数据不能伪装为已查证路线或网友口碑',()=>{const t=copy();t.demo=false;const e=validate(t,{requireRoute:true,requireApproval:true}).errors.join();assert.match(e,/位置尚未核验/);assert.match(e,/口碑缺少/);assert.match(e,/高德道路/);assert.match(e,/尚未确认/);});
+test('真实数据不能伪装为已查证路线或网友口碑',()=>{const t=copy();t.demo=false;t.sources.find(s=>s.id==='forest-post-a').accepted=false;const e=validate(t,{requireRoute:true,requireApproval:true}).errors.join();assert.match(e,/位置尚未核验/);assert.match(e,/口碑缺少/);assert.match(e,/高德道路/);assert.match(e,/尚未确认/);});
 test('图文长度受限，缺样本允许',()=>{const t=copy();assert.equal(validate(t).errors.length,0);t.stops[1].events[1].summary='长'.repeat(16);assert.match(validate(t).errors.join(),/15字/);});
 test('途中城市必须恰好有5项不同且有来源的地方美食',()=>{
   for(const [label,mutate] of [
@@ -84,7 +84,7 @@ test('POI、坐标、城市搜索链接分支',()=>{
 });
 test('高德发送推荐策略，逐点路线无重复求和',async()=>{
   const t=copy();t.demo=false;delete t.route;for(const p of t.places)p.verified=true;
-  t.sources=[{id:'ok',provider:'redfox',accepted:true}];for(const s of t.stops){for(const f of s.foods)f.sourceIds=['ok'];for(const e of s.events)if(e.reviews?.status==='supported')for(const v of [...e.reviews.good,...e.reviews.mixed])v.sourceIds=['ok'];}
+  t.sources.push({id:'ok',provider:'official',accepted:true});for(const s of t.stops)for(const f of s.foods)f.sourceIds=['ok'];
   const calls=[];let clock=0;
   const api=createAmap({key:'unit-test',now:()=>clock,sleep:async ms=>{clock+=ms;},fetchImpl:async url=>{calls.push(url);const u=new URL(url);assert.equal(u.searchParams.get('strategy'),'32');return {ok:true,status:200,json:async()=>({status:'1',route:{paths:[{distance:'1000',cost:{duration:'120'},steps:[{polyline:u.searchParams.get('origin')+';'+u.searchParams.get('destination')}]}]}})};}});
   const route=await api.route(t);assert.equal(calls.length,7);assert.equal(route.legs.reduce((n,l)=>n+l.distanceM,0),7000);assert.equal(route.inputHash,routeInputHash(t));
@@ -123,4 +123,20 @@ test('美食补查逐词保存原始数量与失败状态',async()=>{
   assert.equal(results.at(-1).data.items.length,2);assert.match(results[2].error,/额度不足/);
 });
 test('筛选标记广告和重复，不把自动筛选当证实',()=>{const r=screenNotes([{text:'品牌合作体验'},{text:'步行沿河'},{text:'步行沿河'}]);assert.deepEqual(r.map(x=>x.screening),['exclude','needs-agent-review','exclude']);});
+test('景点研究使用五组查询并采集正文和评论',async()=>{
+  assert.deepEqual(attractionSearchQueries('阳朔','遇龙河景区'),['阳朔 遇龙河景区','遇龙河景区 攻略','遇龙河景区 真实体验','遇龙河景区 避雷','遇龙河景区 排队 停车']);
+  let task=0;const api={search:async keyword=>({list:[{workId:'w'+keyword.length,accountUserid:'a'+keyword.length,workTitle:keyword,workDesc:'真实体验'}]}),detail:async workId=>({workId,workDesc:'正文'}),comments:async()=>({taskId:'t'+(++task)}),commentResult:async()=>({status:'completed',comments:[{content:'排队较久'}]})};
+  const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区',timeoutMs:20,sleep:async()=>{}});
+  assert.equal(bundle.searches.length,5);assert.equal(bundle.status,'complete');assert.ok(bundle.notes.every(n=>n.detail));assert.ok(bundle.commentTasks.every(t=>t.status==='complete'));
+});
+test('pending口碑阻止出稿，v1迁移会清除确认并要求重新研究',()=>{
+  const t=copy();t.stops[1].events[1].reviews={status:'pending',reason:'任务未完成',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
+  assert.match(validate(t).errors.join(),/口碑研究未完成/);
+  const old=copy();old.version=1;old.approval={planHash:'old',confirmedAt:'old'};const migrated=migrateV1ToV2(old);
+  assert.equal(migrated.version,2);assert.equal(migrated.approval,undefined);assert.equal(migrated.stops[1].events[1].reviews.status,'pending');
+});
+test('supported口碑须区分正文评论并覆盖至少两位作者',()=>{
+  const one=copy();one.sources.filter(s=>s.id==='forest-post-b').forEach(s=>s.authorRef='author-a');assert.match(validate(one).errors.join(),/至少2位不同作者/);
+  const noComment=copy();const r=noComment.stops[1].events[1].reviews;r.limitations.forEach(x=>{x.sourceType='post';x.sourceIds=['forest-post-a'];});assert.match(validate(noComment).errors.join(),/至少1条须来自网友评论/);
+});
 test('扫描识别当前Key且工具白名单无发现',async()=>{assert.ok(scanText('prefix-secret-value',['prefix-secret-value']).length);const r=await audit(fileURLToPath(new URL('../',import.meta.url)));assert.deepEqual(r.findings,[]);});

@@ -44,7 +44,7 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
   const check = (ok, message) => { if (!ok) errors.push(message); };
   check(trip && typeof trip === 'object', '行程必须是对象');
   if (!trip || typeof trip !== 'object') return {errors,warnings};
-  check(trip.version === 1, '不支持的数据版本');
+  check(trip.version === 2, '不支持的数据版本；请先执行 migrate-v2');
   check(idPattern.test(trip.id || ''), 'trip.id 必须是稳定英文ID');
   check(typeof trip.title === 'string' && [...trip.title].length <= 30 && trip.title.length > 0, '标题需为1—30字');
   check(dateValid(trip.startDate) && dateValid(trip.endDate) && trip.endDate >= trip.startDate, '行程日期无效');
@@ -123,13 +123,30 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
         check(typeof e.duration === 'string' && e.duration.length > 0, '缺少预计游玩');
         check(Number.isFinite(e.minutes) && e.minutes >= 0, '缺少用于排程的游玩分钟数');
         const r = e.reviews;
-        check(r && ['supported','insufficient'].includes(r.status), '缺少口碑状态');
+        check(r && ['supported','insufficient','pending'].includes(r.status), '缺少口碑状态');
+        if(r?.status==='pending')check(false, `${attraction?.name || e.placeId} 口碑研究未完成；请继续 research-attraction --resume`);
+        const research=r?.research;
+        if(r && r.status!=='pending'){
+          check(research?.status==='complete', `${attraction?.name || e.placeId} 缺少已完成的口碑研究摘要`);
+          check(Array.isArray(research?.attempts) && research.attempts.length>0, `${attraction?.name || e.placeId} 缺少检索尝试记录`);
+        }
         if (r?.status === 'supported') {
-          check(r.good?.length === 2 && r.mixed?.length === 2, '口碑须2条正面、2条中性/负面');
-          for (const item of [...(r.good || []),...(r.mixed || [])]) {
+          check(r.positive?.length === 2 && r.limitations?.length === 2, '口碑须2条正面、2条中性/负面');
+          check(r.positive?.every(item=>item.sentiment==='positive'&&item.sourceType==='post'), '正面口碑须来自帖子正文并标记positive');
+          check(r.limitations?.every(item=>['neutral','negative'].includes(item.sentiment)&&['post','comment'].includes(item.sourceType)), '限制口碑须标记中性/负面及来源类型');
+          check(r.limitations?.some(item=>item.sourceType==='comment'), '限制信息至少1条须来自网友评论');
+          const reviewSources=[];
+          for (const item of [...(r.positive || []),...(r.limitations || [])]) {
             check(typeof item.text === 'string' && [...item.text].length > 0 && [...item.text].length <= 5, '口碑短语需1—5字');
-            if (!trip.demo) check((item.sourceIds || []).some(id => sources.get(id)?.provider === 'redfox' && sources.get(id)?.accepted === true), '口碑缺少已筛选小红书来源');
+            const matching=(item.sourceIds || []).map(id=>sources.get(id)).filter(s=>s?.provider==='redfox'&&s.accepted===true&&s.evidenceType===item.sourceType&&idPattern.test(s.authorRef||''));
+            check(matching.length>0, '口碑缺少作者和正文/评论类型均已核验的小红书来源');reviewSources.push(...matching);
           }
+          check(new Set(reviewSources.map(s=>s.authorRef)).size>=2, '口碑须覆盖至少2位不同作者');
+          check(Number.isInteger(research?.authorCount)&&research.authorCount>=2, '研究摘要须记录至少2位不同作者');
+        }
+        if(r?.status==='insufficient'){
+          check(['provider-unavailable','author-shortfall','limitation-shortfall','irrelevant-results','non-advertorial-shortfall'].includes(r.reasonCode), '样本不足须填写明确原因代码');
+          check(typeof r.reason==='string'&&r.reason.trim().length>=4, '样本不足须填写具体原因');
         }
       }
     }
@@ -167,4 +184,10 @@ export function assertValid(trip, options) {
   const report = validate(trip, options);
   if (report.errors.length) throw new Error(report.errors.join('\n'));
   return report;
+}
+export function migrateV1ToV2(input){
+  if(input?.version!==1)throw new Error('仅支持从v1迁移');
+  const trip=structuredClone(input);trip.version=2;delete trip.approval;
+  for(const stop of trip.stops||[])for(const event of stop.events||[])if(event.type==='play')event.reviews={status:'pending',reason:'v1口碑缺少作者及正文/评论类型，需重新研究',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
+  return trip;
 }

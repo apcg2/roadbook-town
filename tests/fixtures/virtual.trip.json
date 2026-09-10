@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "id": "fictional-weekend",
   "demo": true,
   "title": "松风 · 芦岸",
@@ -95,7 +95,11 @@
       "canonicalAttractionId": "reed-bank-path"
     }
   ],
-  "sources": [],
+  "sources": [
+    {"id":"forest-post-a","provider":"redfox","accepted":true,"authorRef":"author-a","evidenceType":"post"},
+    {"id":"forest-post-b","provider":"redfox","accepted":true,"authorRef":"author-b","evidenceType":"post"},
+    {"id":"forest-comment-a","provider":"redfox","accepted":true,"authorRef":"author-a","evidenceType":"comment"}
+  ],
   "stops": [
     {
       "id": "east-start",
@@ -161,24 +165,25 @@
           "minutes": 150,
           "reviews": {
             "status": "supported",
-            "good": [
+            "research": {"status":"complete","attempts":[{"keyword":"松风县 松间步道","status":"ok","count":3}],"candidateCount":3,"acceptedCount":3,"authorCount":2},
+            "positive": [
               {
                 "text": "树荫充足",
-                "sourceIds": []
+                "sentiment": "positive", "sourceType":"post", "sourceIds": ["forest-post-a"]
               },
               {
                 "text": "景色开阔",
-                "sourceIds": []
+                "sentiment": "positive", "sourceType":"post", "sourceIds": ["forest-post-b"]
               }
             ],
-            "mixed": [
+            "limitations": [
               {
                 "text": "需步行",
-                "sourceIds": []
+                "sentiment": "neutral", "sourceType":"comment", "sourceIds": ["forest-comment-a"]
               },
               {
                 "text": "路面有坡",
-                "sourceIds": []
+                "sentiment": "negative", "sourceType":"post", "sourceIds": ["forest-post-b"]
               }
             ]
           }
@@ -244,7 +249,10 @@
           "duration": "2 小时",
           "minutes": 120,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "author-shortfall",
+            "reason": "筛选后仅有一位独立作者",
+            "research": {"status":"complete","attempts":[{"keyword":"芦岸市 芦苇水岸","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "id": "guangdong-national-day-2026",
   "demo": false,
   "title": "广东 · 山水环线",
@@ -599,7 +599,10 @@
           "duration": "2–3 小时",
           "minutes": 150,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -674,7 +677,10 @@
           "duration": "1.5–2 小时",
           "minutes": 105,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -686,35 +692,10 @@
           "duration": "1.5–2 小时",
           "minutes": 105,
           "reviews": {
-            "status": "supported",
-            "good": [
-              {
-                "text": "建筑好拍",
-                "sourceIds": [
-                  "note-0"
-                ]
-              },
-              {
-                "text": "适合慢逛",
-                "sourceIds": [
-                  "note-1"
-                ]
-              }
-            ],
-            "mixed": [
-              {
-                "text": "游客较多",
-                "sourceIds": [
-                  "note-0"
-                ]
-              },
-              {
-                "text": "需步行",
-                "sourceIds": [
-                  "note-1"
-                ]
-              }
-            ]
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "旧资料未区分帖子正文与网友评论",
+            "research": {"status":"complete","attempts":[{"keyword":"广州 沙面岛","status":"ok","count":20}],"candidateCount":2,"acceptedCount":2,"authorCount":2}
           }
         },
         {
@@ -789,7 +770,10 @@
           "duration": "2.5–3 小时",
           "minutes": 165,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -801,7 +785,10 @@
           "duration": "1–1.5 小时",
           "minutes": 75,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -876,7 +863,10 @@
           "duration": "1.5–2 小时",
           "minutes": 105,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -894,35 +884,10 @@
           "duration": "5–6 小时",
           "minutes": 330,
           "reviews": {
-            "status": "supported",
-            "good": [
-              {
-                "text": "山景壮观",
-                "sourceIds": [
-                  "note-3"
-                ]
-              },
-              {
-                "text": "晚霞漂亮",
-                "sourceIds": [
-                  "note-3"
-                ]
-              }
-            ],
-            "mixed": [
-              {
-                "text": "栈道拥堵",
-                "sourceIds": [
-                  "note-2"
-                ]
-              },
-              {
-                "text": "受天气影响",
-                "sourceIds": [
-                  "note-3"
-                ]
-              }
-            ]
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "旧资料未区分帖子正文与网友评论",
+            "research": {"status":"complete","attempts":[{"keyword":"韶关 丹霞山","status":"ok","count":20}],"candidateCount":2,"acceptedCount":2,"authorCount":2}
           }
         },
         {
@@ -997,7 +962,10 @@
           "duration": "1–1.5 小时",
           "minutes": 75,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -1015,7 +983,10 @@
           "duration": "3 小时",
           "minutes": 180,
           "reviews": {
-            "status": "insufficient"
+            "status": "insufficient",
+            "reasonCode": "limitation-shortfall",
+            "reason": "现有资料未核验到足够评论区限制信息",
+            "research": {"status":"complete","attempts":[{"keyword":"历史检索记录","status":"ok","count":1}],"candidateCount":1,"acceptedCount":1,"authorCount":1}
           }
         },
         {
@@ -150312,7 +150283,7 @@
     ]
   },
   "approval": {
-    "planHash": "ed56e89d8dbe7849879e8c76d6fb1b9e136dfe31347a4b532b8f3a48badd1dba",
+    "planHash": "2fce38651ff9cacfefd7a543f39ef43fef19485a08ec989a658c32c30d5a0c43",
     "confirmedAt": "2026-09-09T14:40:48.996Z"
   }
 }
