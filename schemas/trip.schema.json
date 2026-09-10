@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Roadbook Town trip v2",
+  "title": "Roadbook Town trip v3",
   "type": "object",
   "required": [
     "version",
@@ -14,15 +14,13 @@
   "$defs": {
     "reviewItems": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
       "items": {
         "type": "object",
         "required": ["text", "sentiment", "sourceType", "sourceIds"],
         "properties": {
           "text": {"type": "string", "minLength": 1, "maxLength": 5},
           "sentiment": {"enum": ["positive", "neutral", "negative"]},
-          "sourceType": {"enum": ["post", "comment"]},
+          "sourceType": {"const": "post"},
           "sourceIds": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"}}
         }
       }
@@ -30,7 +28,7 @@
   },
   "properties": {
     "version": {
-      "const": 2
+      "const": 3
     },
     "id": {
       "type": "string",
@@ -253,7 +251,7 @@
                   "type": "object",
                   "required": ["status", "research"],
                   "properties": {
-                    "status": {"enum": ["supported", "insufficient", "pending"]},
+                    "status": {"enum": ["supported", "partial", "insufficient", "pending"]},
                     "reasonCode": {"enum": ["provider-unavailable", "author-shortfall", "limitation-shortfall", "irrelevant-results", "non-advertorial-shortfall"]},
                     "reason": {"type": "string"},
                     "research": {
@@ -265,12 +263,10 @@
                         "candidateCount": {"type": "integer", "minimum": 0},
                         "acceptedCount": {"type": "integer", "minimum": 0},
                         "authorCount": {"type": "integer", "minimum": 0}
-                        ,"commentMode": {"enum": ["full", "post-only"]}
-                        ,"commentFallbackReason": {"enum": ["permission-or-quota", "provider-error", "timeout"]}
                       }
                     },
-                    "positive": {"$ref": "#/$defs/reviewItems"},
-                    "limitations": {"$ref": "#/$defs/reviewItems"}
+                    "positive": {"allOf": [{"$ref": "#/$defs/reviewItems"}], "minItems": 2, "maxItems": 2},
+                    "limitations": {"allOf": [{"$ref": "#/$defs/reviewItems"}], "minItems": 0, "maxItems": 2}
                   }
                 },
                 "hotel": {
@@ -383,9 +379,7 @@
             "type": "string",
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
-          "evidenceType": {
-            "enum": ["post", "comment"]
-          },
+          "evidenceType": {"const": "post"},
           "reason": {
             "type": "string"
           }

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "id": "guangdong-national-day-2026",
   "demo": false,
   "title": "广东 · 山水环线",
@@ -150283,7 +150283,7 @@
     ]
   },
   "approval": {
-    "planHash": "2fce38651ff9cacfefd7a543f39ef43fef19485a08ec989a658c32c30d5a0c43",
+    "planHash": "176d1cc6eab97be786125b681ac3c657f0f9468bd8638777a48267556c4be337",
     "confirmedAt": "2026-09-09T14:40:48.996Z"
   }
 }

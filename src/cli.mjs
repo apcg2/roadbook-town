@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { assertValid, validate, hash, planHash, migrateV1ToV2 } from './model.mjs';
+import { assertValid, validate, hash, planHash, migrateToV3 } from './model.mjs';
 import { render, textPlan } from './render.mjs';
 import { audit, scanText } from './audit.mjs';
 import { createAmap } from './providers/amap.mjs';
@@ -66,9 +66,8 @@ async function main(){
   }
   if(command==='research'){
     const r=createRedfox({key:process.env.REDFOX_API_KEY});let data;
+    if(flag('--comments')||flag('--task'))throw new Error('项目仅采集小红书帖子正文，不支持评论采集');
     if(flag('--detail'))data=await r.detail(flag('--detail'));
-    else if(flag('--comments'))data=await r.comments(flag('--comments'));
-    else if(flag('--task'))data=await r.commentResult(flag('--task'));
     else {if(!args[0])throw new Error('需提供关键词');data=await r.search(args[0]);}
     await save(flag('--out')||join(root,'private/research.json'),{provider:'redfox',queriedAt:new Date().toISOString(),untrusted:true,data});console.log('查询材料已保存到私有文件；须人工/Agent筛选并保留来源，不能直接当作推荐。');return;
   }
@@ -86,9 +85,9 @@ async function main(){
     const bundle=await researchAttraction(createRedfox({key:process.env.REDFOX_API_KEY}),{city,place,resume:resumed,onProgress:value=>save(out,value)});
     console.log(bundle.status==='pending'?`研究任务尚未完成，已安全保存；稍后使用 --resume ${out}`:`景点研究材料已完整保存到 ${out}；须由Agent去广告、核验作者并归纳短评。`);if(bundle.status==='pending')process.exitCode=2;return;
   }
-  if(command==='migrate-v2'){
-    if(!args[0])throw new Error('用法：migrate-v2 v1行程.json [--out v2行程.json]');
-    const input=resolve(args[0]),out=resolve(flag('--out')||input.replace(/\.json$/i,'.v2.json'));await save(out,migrateV1ToV2(await json(input)));console.log(`已迁移到v2：${out}；旧口碑已标为pending，重新研究并经用户确认后才能渲染。`);return;
+  if(command==='migrate-v3'){
+    if(!args[0])throw new Error('用法：migrate-v3 v1或v2行程.json [--out v3行程.json]');
+    const input=resolve(args[0]),out=resolve(flag('--out')||input.replace(/\.json$/i,'.v3.json'));await save(out,migrateToV3(await json(input)));console.log(`已迁移到v3：${out}；含评论来源或不符合正文规则的旧口碑已标为pending。`);return;
   }
   if(command==='preview'){
     const file=resolve(args[0]||join(root,'output/demo/index.html'));
@@ -113,7 +112,7 @@ async function main(){
     if(!verified)throw new Error('上传已执行，但生产地址尚未核对一致；请核查部署状态后再宣布成功');
     await save(join(root,'private/publication.json'),{project,url,htmlHash:hash(result.html),publishedAt:new Date().toISOString()});console.log(`发布并核对成功：${url}`);return;
   }
-  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID|--comments ID|--task ID] | research-food --city 城市 [--dish 菜品] | research-attraction --city 城市 --place 景点 [--resume 文件] | migrate-v2 文件 | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
+  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID] | research-food --city 城市 [--dish 菜品] | research-attraction --city 城市 --place 景点 [--resume 文件] | migrate-v3 文件 | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
 }
 main().catch(error=>{
   let message=String(error.message||'操作失败');for(const key of [process.env.AMAP_WEB_SERVICE_KEY,process.env.REDFOX_API_KEY])if(key)message=message.split(key).join('[已隐藏]');

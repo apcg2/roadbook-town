@@ -21,7 +21,7 @@ function food(item){
 }
 function reviews(r){
   if(r.status==='insufficient') return `<div class="spot-reviews"><h4>小红书网友</h4><p class="review-line">样本不足：${esc(r.reason)}</p></div>`;
-  return `<div class="spot-reviews"><h4>小红书网友</h4><div class="review-line">${[['positive','good'],['limitations','mixed']].map(([key,kind])=>`<span class="review-group ${kind}">${art(`review-${kind}`,'','0 0 18 18')}${r[key].map(v=>`<span>${esc(v.text)}</span>`).join('<span class="review-separator" aria-hidden="true">·</span>')}</span>`).join('')}</div></div>`;
+  return `<div class="spot-reviews"><h4>小红书网友</h4><div class="review-line">${[['positive','good'],['limitations','mixed']].map(([key,kind])=>`<span class="review-group ${kind}">${art(`review-${kind}`,'','0 0 18 18')}${r[key].length?r[key].map(v=>`<span>${esc(v.text)}</span>`).join('<span class="review-separator" aria-hidden="true">·</span>'):'<span>样本不足</span>'}</span>`).join('')}</div></div>`;
 }
 function event(e,places){
   const p=places.get(e.placeId);
@@ -64,7 +64,7 @@ export function textPlan(trip){
   if(trip.demo)text+='虚拟样例，不作为真实旅行建议。\n\n';
   if(trip.route)text+=`总里程约 ${Math.round(trip.route.legs.reduce((n,l)=>n+l.distanceM,0)/10000)*10} KM（含当地往返）\n\n`;
   for(const s of trip.stops){text+=`## ${s.arrive}—${s.leave} ${places.get(s.placeId).name}\n\n`;if(s.foods?.length)text+=`美食：${s.foods.map(f=>f.name).join('、')}\n\n`;
-    for(const e of s.events){const p=places.get(e.placeId);text+=`- ${e.date} ${e.period} · ${e.type==='stay'?'住宿：':e.type==='play'?'游览：':''}${e.text || p.name}${e.type==='play'?` · ${p.address} · 预计游玩 ${e.duration} · ${e.summary}`:''}\n`;if(e.type==='play')text+=`  小红书网友：${e.reviews.status==='insufficient'?`样本不足（${e.reviews.reason}）`:[...e.reviews.positive,...e.reviews.limitations].map(v=>v.text).join(' · ')}\n`;}
+    for(const e of s.events){const p=places.get(e.placeId);text+=`- ${e.date} ${e.period} · ${e.type==='stay'?'住宿：':e.type==='play'?'游览：':''}${e.text || p.name}${e.type==='play'?` · ${p.address} · 预计游玩 ${e.duration} · ${e.summary}`:''}\n`;if(e.type==='play')text+=`  小红书网友：${e.reviews.status==='insufficient'?`样本不足（${e.reviews.reason}）`:[...e.reviews.positive,...e.reviews.limitations].map(v=>v.text).join(' · ')+(e.reviews.status==='partial'?' · 样本不足':'')}\n`;}
     text+='\n';
   }
   if(trip.route)text+='## 驾驶核对\n\n'+trip.route.legs.map(l=>`- ${places.get(l.from).name} → ${places.get(l.to).name}：${(l.distanceM/1000).toFixed(1)} KM，约${Math.round(l.durationS/60)}分钟`).join('\n')+'\n';

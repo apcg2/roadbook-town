@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {Script} from 'node:vm';
-import {validate,routeStops,routeInputHash,planHash,escape,safeJSON,migrateV1ToV2} from '../src/model.mjs';
+import {validate,routeStops,routeInputHash,planHash,escape,safeJSON,migrateToV3} from '../src/model.mjs';
 import {render,amapLink} from '../src/render.mjs';
 import {createAmap} from '../src/providers/amap.mjs';
 import {createRedfox,screenNotes,foodSearchQueries,researchFood,attractionSearchQueries,researchAttraction} from '../src/providers/redfox.mjs';
@@ -108,10 +108,10 @@ test('高德失败不返回假直线，服务消息不泄漏密钥',async()=>{
   const api=createAmap({key:'sensitive-test-value',fetchImpl:async()=>({ok:true,status:200,json:async()=>({status:'0',infocode:'10001',info:'sensitive-test-value'})})});
   await assert.rejects(()=>api.search('a','b'),e=>e.message.includes('10001')&&!e.message.includes('sensitive-test-value'));
 });
-test('Redfox请求头、成功结构与评论限制',async()=>{
+test('Redfox只提供搜索和正文详情接口',async()=>{
   const calls=[];const api=createRedfox({key:'unit-test',fetchImpl:async(url,opts)=>{calls.push([url,opts]);return {ok:true,status:200,json:async()=>({code:2000,data:{items:[]}})};}});
-  assert.deepEqual(await api.search('示例'),{items:[]});await api.comments('note-id');
-  assert.equal(calls[0][1].headers.REDFOX_API_KEY,'unit-test');assert.equal(JSON.parse(calls[1][1].body).dataNum,20);
+  assert.deepEqual(await api.search('示例'),{items:[]});await api.detail('note-id');
+  assert.equal(calls[0][1].headers.REDFOX_API_KEY,'unit-test');assert.equal(api.comments,undefined);assert.equal(api.commentResult,undefined);
 });
 test('美食检索先查城市类目，再按城市和菜品补查并去重',()=>{
   assert.deepEqual(foodSearchQueries('柳州',['螺蛳粉','柳州 螺蛳粉','螺蛳粉']),['柳州 美食','柳州 特色美食','柳州 特色小吃','柳州 螺蛳粉']);
@@ -123,39 +123,31 @@ test('美食补查逐词保存原始数量与失败状态',async()=>{
   assert.equal(results.at(-1).data.items.length,2);assert.match(results[2].error,/额度不足/);
 });
 test('筛选标记广告和重复，不把自动筛选当证实',()=>{const r=screenNotes([{text:'品牌合作体验'},{text:'步行沿河'},{text:'步行沿河'}]);assert.deepEqual(r.map(x=>x.screening),['exclude','needs-agent-review','exclude']);});
-test('景点研究使用五组查询并采集正文和评论',async()=>{
+test('景点研究使用五组查询且只采集正文',async()=>{
   assert.deepEqual(attractionSearchQueries('阳朔','遇龙河景区'),['阳朔 遇龙河景区','遇龙河景区 攻略','遇龙河景区 真实体验','遇龙河景区 避雷','遇龙河景区 排队 停车']);
-  let task=0;const api={search:async keyword=>({list:[{workId:'w'+keyword.length,accountUserid:'a'+keyword.length,workTitle:keyword,workDesc:'真实体验'}]}),detail:async workId=>({workId,workDesc:'正文'}),comments:async()=>({taskId:'t'+(++task)}),commentResult:async()=>({status:'completed',comments:[{content:'排队较久'}]})};
-  const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区',timeoutMs:20,sleep:async()=>{}});
-  assert.equal(bundle.searches.length,5);assert.equal(bundle.status,'complete');assert.ok(bundle.notes.every(n=>n.detail));assert.ok(bundle.commentTasks.every(t=>t.status==='complete'));
+  let commentCalls=0;const api={search:async keyword=>({list:[{workId:'w'+keyword.length,accountUserid:'a'+keyword.length,workTitle:keyword,workDesc:'真实体验'}]}),detail:async workId=>({workId,workDesc:'正文'}),comments:async()=>{commentCalls++;}};
+  const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区'});
+  assert.equal(bundle.searches.length,5);assert.equal(bundle.status,'complete');assert.ok(bundle.notes.every(n=>n.detail));assert.equal(commentCalls,0);assert.equal('commentTasks' in bundle,false);
 });
-test('评论无权限或额度不足时立即降级为仅正文',async()=>{
-  for(const message of ['Redfox接口失败（代码 3201）；请检查权限','评论采集额度不足']){let commentCalls=0;
-    const api={search:async keyword=>({list:[{workId:'w'+keyword,accountUserid:'a'+keyword,workTitle:keyword,workDesc:'正文体验'}]}),detail:async workId=>({workId,workDesc:'完整正文'}),comments:async()=>{commentCalls++;throw new Error(message);},commentResult:async()=>{throw new Error('不应调用');}};
-    const bundle=await researchAttraction(api,{city:'阳朔',place:'遇龙河景区'});
-    assert.equal(bundle.status,'complete');assert.equal(bundle.commentMode,'post-only');assert.equal(bundle.commentFallbackReason,'permission-or-quota');assert.equal(commentCalls,1);assert.ok(bundle.notes.every(n=>n.detail));
-  }
+test('正文详情失败时保持pending并可恢复',async()=>{
+  let fail=true;const api={search:async keyword=>({list:[{workId:'w'+keyword,accountUserid:'a'+keyword,workTitle:keyword,workDesc:'摘要'}]}),detail:async workId=>{if(fail)throw new Error('临时失败');return {workId,workDesc:'正文'};}};
+  const first=await researchAttraction(api,{city:'阳朔',place:'西街'});assert.equal(first.status,'pending');
+  fail=false;const resumed=await researchAttraction(api,{city:'阳朔',place:'西街',resume:first});assert.equal(resumed.status,'complete');assert.ok(resumed.notes.every(n=>n.detail));
 });
-test('评论接口异常和等待超时不会阻塞正文研究',async()=>{
-  const base={search:async keyword=>({list:[{workId:'w'+keyword,accountUserid:'a'+keyword,workTitle:keyword,workDesc:'正文体验'}]}),detail:async workId=>({workId,workDesc:'完整正文'})};
-  const failed=await researchAttraction({...base,comments:async()=>{throw new Error('上游故障');},commentResult:async()=>{}},{city:'阳朔',place:'西街'});
-  assert.equal(failed.status,'complete');assert.equal(failed.commentFallbackReason,'provider-error');
-  let clock=0,task=0;const timed=await researchAttraction({...base,comments:async()=>({taskId:'t'+(++task)}),commentResult:async()=>({status:'processing'})},{city:'阳朔',place:'兴坪古镇',timeoutMs:10,now:()=>clock,sleep:async ms=>{clock+=ms;}});
-  assert.equal(timed.status,'complete');assert.equal(timed.commentMode,'post-only');assert.equal(timed.commentFallbackReason,'timeout');assert.ok(timed.commentTasks.every(t=>t.status==='error'));
-});
-test('pending口碑阻止出稿，v1迁移会清除确认并要求重新研究',()=>{
+test('pending口碑阻止出稿，旧数据迁移会清除确认',()=>{
   const t=copy();t.stops[1].events[1].reviews={status:'pending',reason:'任务未完成',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
   assert.match(validate(t).errors.join(),/口碑研究未完成/);
-  const old=copy();old.version=1;old.approval={planHash:'old',confirmedAt:'old'};const migrated=migrateV1ToV2(old);
-  assert.equal(migrated.version,2);assert.equal(migrated.approval,undefined);assert.equal(migrated.stops[1].events[1].reviews.status,'pending');
+  const old=copy();old.version=2;old.approval={planHash:'old',confirmedAt:'old'};old.stops[1].events[1].reviews.limitations[0].sourceType='comment';const migrated=migrateToV3(old);
+  assert.equal(migrated.version,3);assert.equal(migrated.approval,undefined);assert.equal(migrated.stops[1].events[1].reviews.status,'pending');
 });
-test('supported口碑须区分正文评论并覆盖至少两位作者',()=>{
+test('正文口碑须覆盖至少两位作者',()=>{
   const one=copy();one.sources.filter(s=>s.id==='forest-post-b').forEach(s=>s.authorRef='author-a');assert.match(validate(one).errors.join(),/至少2位不同作者/);
-  const noComment=copy();const r=noComment.stops[1].events[1].reviews;r.limitations.forEach(x=>{x.sourceType='post';x.sourceIds=['forest-post-a'];});assert.match(validate(noComment).errors.join(),/至少1条须来自网友评论/);
+  const comment=copy();comment.sources[0].evidenceType='comment';assert.match(validate(comment).errors.join(),/不允许的评论来源/);
 });
-test('仅正文降级仍可用两位作者生成完整口碑',()=>{
-  const t=copy(),r=t.stops[1].events[1].reviews;r.research.commentMode='post-only';r.research.commentFallbackReason='permission-or-quota';
-  r.limitations=[{text:'需步行',sentiment:'neutral',sourceType:'post',sourceIds:['forest-post-a']},{text:'路面有坡',sentiment:'negative',sourceType:'post',sourceIds:['forest-post-b']}];
-  assert.deepEqual(validate(t).errors,[]);
+test('限制评价支持1条、2条或样本不足',async()=>{
+  const one=copy();one.stops[1].events[1].reviews.limitations.length=1;assert.deepEqual(validate(one).errors,[]);
+  const partial=copy(),r=partial.stops[1].events[1].reviews;r.status='partial';r.reasonCode='limitation-shortfall';r.limitations=[];assert.deepEqual(validate(partial).errors,[]);
+  const html=(await render(partial)).html;assert.ok(html.includes('样本不足'));
+  const none=copy();none.stops[1].events[1].reviews.limitations=[];assert.match(validate(none).errors.join(),/使用partial/);
 });
 test('扫描识别当前Key且工具白名单无发现',async()=>{assert.ok(scanText('prefix-secret-value',['prefix-secret-value']).length);const r=await audit(fileURLToPath(new URL('../',import.meta.url)));assert.deepEqual(r.findings,[]);});

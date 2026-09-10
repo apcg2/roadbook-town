@@ -23,9 +23,9 @@
 - https://github.com/redfox-data/redfox-python-sdk/blob/main/redfox/endpoints/xiaohongshu.py
 - https://github.com/redfox-data/redfox-python-sdk/blob/main/redfox/client.py
 
-POST JSON；请求头 `REDFOX_API_KEY`；业务成功码2000。支持搜索、笔记详情、评论任务提交/读取。查询代码未包含官方SDK源码。
+POST JSON；请求头 `REDFOX_API_KEY`；业务成功码2000。工具仅使用搜索和笔记详情，不调用评论接口。查询代码未包含官方SDK源码。
 
-采集评论默认最多20条，不获取全部。返回数据视为不可信来源，不直接输出为推荐。任务尚未完成时隔一段时间再读取，Agent最多轮询5次，不能无限查询。
+返回的搜索与正文数据视为不可信来源，不直接输出为推荐；必须由Agent核对目的地关联、作者和广告线索。
 
 真实账号权限和余额只有调用后才能确认；doctor只检查是否配置，不能证明Key有效。当前不复用项目作者以往的任何Key。
 

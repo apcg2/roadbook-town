@@ -44,7 +44,7 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
   const check = (ok, message) => { if (!ok) errors.push(message); };
   check(trip && typeof trip === 'object', '行程必须是对象');
   if (!trip || typeof trip !== 'object') return {errors,warnings};
-  check(trip.version === 2, '不支持的数据版本；请先执行 migrate-v2');
+  check(trip.version === 3, '不支持的数据版本；请先执行 migrate-v3');
   check(idPattern.test(trip.id || ''), 'trip.id 必须是稳定英文ID');
   check(typeof trip.title === 'string' && [...trip.title].length <= 30 && trip.title.length > 0, '标题需为1—30字');
   check(dateValid(trip.startDate) && dateValid(trip.endDate) && trip.endDate >= trip.startDate, '行程日期无效');
@@ -56,6 +56,7 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
   check(byId.size === places.length, '地点ID重复');
   check(new Set(stops.map(s=>s.id)).size === stops.length, '到访段ID重复');
   const sources = new Map((trip.sources || []).map(s => [s.id,s]));
+  for(const source of trip.sources||[])if(source.evidenceType!==undefined)check(source.evidenceType==='post', `${source.id||'来源'} 包含不允许的评论来源`);
   for (const p of places) {
     check(idPattern.test(p.id || ''), '地点ID无效');
     check(typeof p.name === 'string' && p.name.length > 0, '地点缺少名称');
@@ -123,25 +124,23 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
         check(typeof e.duration === 'string' && e.duration.length > 0, '缺少预计游玩');
         check(Number.isFinite(e.minutes) && e.minutes >= 0, '缺少用于排程的游玩分钟数');
         const r = e.reviews;
-        check(r && ['supported','insufficient','pending'].includes(r.status), '缺少口碑状态');
+        check(r && ['supported','partial','insufficient','pending'].includes(r.status), '缺少口碑状态');
         if(r?.status==='pending')check(false, `${attraction?.name || e.placeId} 口碑研究未完成；请继续 research-attraction --resume`);
         const research=r?.research;
         if(r && r.status!=='pending'){
           check(research?.status==='complete', `${attraction?.name || e.placeId} 缺少已完成的口碑研究摘要`);
           check(Array.isArray(research?.attempts) && research.attempts.length>0, `${attraction?.name || e.placeId} 缺少检索尝试记录`);
         }
-        if (r?.status === 'supported') {
-          check(r.positive?.length === 2 && r.limitations?.length === 2, '口碑须2条正面、2条中性/负面');
+        if (['supported','partial'].includes(r?.status)) {
+          check(r.positive?.length === 2, '口碑须有2条正面');
+          check(r.status==='supported'&&r.limitations?.length>=1&&r.limitations.length<=2||r.status==='partial'&&r.limitations?.length===0&&r.reasonCode==='limitation-shortfall', '口碑须有1—2条中性/负面；正文无可靠限制信息时使用partial');
           check(r.positive?.every(item=>item.sentiment==='positive'&&item.sourceType==='post'), '正面口碑须来自帖子正文并标记positive');
-          check(r.limitations?.every(item=>['neutral','negative'].includes(item.sentiment)&&['post','comment'].includes(item.sourceType)), '限制口碑须标记中性/负面及来源类型');
-          const postOnly=research?.commentMode==='post-only'&&['permission-or-quota','provider-error','timeout'].includes(research?.commentFallbackReason);
-          check(postOnly||r.limitations?.some(item=>item.sourceType==='comment'), '限制信息至少1条须来自网友评论；评论失败时须记录post-only降级原因');
-          if(postOnly)check([...(r.positive||[]),...(r.limitations||[])].every(item=>item.sourceType==='post'), '仅正文模式的全部口碑都必须引用帖子正文');
+          check(r.limitations?.every(item=>['neutral','negative'].includes(item.sentiment)&&item.sourceType==='post'), '限制口碑须来自帖子正文并标记中性/负面');
           const reviewSources=[];
           for (const item of [...(r.positive || []),...(r.limitations || [])]) {
             check(typeof item.text === 'string' && [...item.text].length > 0 && [...item.text].length <= 5, '口碑短语需1—5字');
-            const matching=(item.sourceIds || []).map(id=>sources.get(id)).filter(s=>s?.provider==='redfox'&&s.accepted===true&&s.evidenceType===item.sourceType&&idPattern.test(s.authorRef||''));
-            check(matching.length>0, '口碑缺少作者和正文/评论类型均已核验的小红书来源');reviewSources.push(...matching);
+            const matching=(item.sourceIds || []).map(id=>sources.get(id)).filter(s=>s?.provider==='redfox'&&s.accepted===true&&s.evidenceType==='post'&&item.sourceType==='post'&&idPattern.test(s.authorRef||''));
+            check(matching.length>0, '口碑缺少作者及正文类型均已核验的小红书来源');reviewSources.push(...matching);
           }
           check(new Set(reviewSources.map(s=>s.authorRef)).size>=2, '口碑须覆盖至少2位不同作者');
           check(Number.isInteger(research?.authorCount)&&research.authorCount>=2, '研究摘要须记录至少2位不同作者');
@@ -187,9 +186,15 @@ export function assertValid(trip, options) {
   if (report.errors.length) throw new Error(report.errors.join('\n'));
   return report;
 }
-export function migrateV1ToV2(input){
-  if(input?.version!==1)throw new Error('仅支持从v1迁移');
-  const trip=structuredClone(input);trip.version=2;delete trip.approval;
-  for(const stop of trip.stops||[])for(const event of stop.events||[])if(event.type==='play')event.reviews={status:'pending',reason:'v1口碑缺少作者及正文/评论类型，需重新研究',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
+export function migrateToV3(input){
+  if(![1,2].includes(input?.version))throw new Error('仅支持从v1或v2迁移');
+  const trip=structuredClone(input);trip.version=3;delete trip.approval;const sources=new Map((trip.sources||[]).map(s=>[s.id,s]));
+  for(const stop of trip.stops||[])for(const event of stop.events||[])if(event.type==='play'){
+    const r=event.reviews,items=[...(r?.positive||[]),...(r?.limitations||[])],postOnly=input.version===2&&['supported','partial'].includes(r?.status)&&r.positive?.length===2&&(r.limitations?.length||0)<=2&&items.every(item=>item.sourceType==='post'&&(item.sourceIds||[]).some(id=>sources.get(id)?.evidenceType==='post'));
+    if(postOnly){delete r.research.commentMode;delete r.research.commentFallbackReason;if(!r.limitations?.length){r.status='partial';r.reasonCode='limitation-shortfall';}}
+    else if(input.version===1||['supported','partial'].includes(r?.status))event.reviews={status:'pending',reason:'旧口碑包含评论来源或缺少正文证据，需重新研究',research:{status:'pending',attempts:[],candidateCount:0,acceptedCount:0,authorCount:0}};
+    else if(r?.research){delete r.research.commentMode;delete r.research.commentFallbackReason;}
+  }
+  trip.sources=(trip.sources||[]).filter(source=>source.evidenceType!=='comment');
   return trip;
 }
