@@ -72,7 +72,7 @@ node src/cli.mjs preview output/trip/index.html
 
 `private/`存放用户数据和原始来源；`output/`存放生成网页与报告；均被Git忽略。公开文件采用白名单扫描：`npm run audit`。首次发布仓库还需人工核查Git历史与素材，不要把含个人资料的旧工作目录直接推送。
 
-详细规则：[Agent流程](AGENTS.md)、[数据结构](docs/data.md)、[规划原则](docs/planning.md)、[固定UI](docs/ui.md)、[配置](docs/setup.md)、[验收](docs/testing.md)、[发布](docs/publishing.md)、[许可](LICENSE)。
+详细规则：[Agent流程](AGENTS.md)、[数据结构](docs/data.md)、[规划原则](docs/planning.md)、[固定UI](docs/ui.md)、[配置](docs/setup.md)、[接口排错](docs/providers/troubleshooting.md)、[验收](docs/testing.md)、[发布](docs/publishing.md)、[许可](LICENSE)。
 
 ## 许可状态
 
