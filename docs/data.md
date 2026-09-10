@@ -10,7 +10,7 @@
 - `stops`：有序到访段。role依次为start、visit…、end；即使同城重复也有不同id。placeId引用city地点。region用于所属市州。
 - `entryPlaceId`：可选的入城首站，例如沿途景点或停车入口；未提供时先到城市节点。用于先游览后入住的顺路安排，避免先绕到市中心。
 - `events`：按日期、早上/上午/中午/下午/傍晚/晚上排序。type为arrive/play/stay/depart，每项引用placeId。
-- `play`：summary最多15字，duration为显示时长，minutes为排程估值。v3的reviews为supported、partial、insufficient或pending。supported含2条positive和1—2条limitations；partial保留2条positive、limitations为空且页面显示“样本不足”。所有评价只引用帖子正文并覆盖至少2位作者。
+- `play`：summary最多15字，duration为显示时长，minutes为排程估值。v3的reviews为supported、partial、insufficient或pending。supported含2条positive和1—2条limitations；partial只展示2条positive；insufficient不展示口碑模块。所有评价只引用帖子正文并覆盖至少2位作者。
 - `stay`：默认placeId为住宿城市；有用户提供的具体酒店时增加hotel:{name,placeId}，实际酒店位置进入道路计算，地图小屋仍紧邻城市标签。
 - `sightShortfallReason`：途中城市仅安排1个景点时必填，说明时间或证据不足；正常2—3个时省略。
 - `foods`：途中城市必须恰好5项菜品，每项含name和sourceIds；不含门店，名称标准化后不得重复。

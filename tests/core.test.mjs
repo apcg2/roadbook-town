@@ -73,7 +73,7 @@ test('渲染完整组件、单文件且没有私人sources',async()=>{
   assert.equal(report.hotelLinks,2);assert.equal(report.weatherGroups,2);assert.equal(report.foodLinks,10);
   assert.equal((html.match(/class="quick-nav-route"/g)||[]).length,3);
   assert.ok(!html.includes('private-record'));assert.ok(!html.includes('map-total-rule'));
-  assert.ok(html.includes('样本不足'));assert.ok(html.includes('roadbook-town:checklist:v1:'));
+  assert.ok(!html.includes('样本不足'));assert.equal((html.match(/<h4>小红书网友<\/h4>/g)||[]).length,1);assert.ok(html.includes('roadbook-town:checklist:v1:'));
   for(const script of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new Script(script[1]);
 });
 test('公开地图标签不包含景点名称',async()=>{const {html}=await render(copy());const map=html.slice(html.indexOf('<svg class="route-map"'),html.indexOf('<div class="travel"'));assert.ok(map.includes('松风县'));assert.ok(!map.includes('松间步道'));});
@@ -144,10 +144,14 @@ test('正文口碑须覆盖至少两位作者',()=>{
   const one=copy();one.sources.filter(s=>s.id==='forest-post-b').forEach(s=>s.authorRef='author-a');assert.match(validate(one).errors.join(),/至少2位不同作者/);
   const comment=copy();comment.sources[0].evidenceType='comment';assert.match(validate(comment).errors.join(),/不允许的评论来源/);
 });
-test('限制评价支持1条、2条或样本不足',async()=>{
+test('限制评价支持1条、2条或隐藏缺失内容',async()=>{
   const one=copy();one.stops[1].events[1].reviews.limitations.length=1;assert.deepEqual(validate(one).errors,[]);
   const partial=copy(),r=partial.stops[1].events[1].reviews;r.status='partial';r.reasonCode='limitation-shortfall';r.limitations=[];assert.deepEqual(validate(partial).errors,[]);
-  const html=(await render(partial)).html;assert.ok(html.includes('样本不足'));
+  const html=(await render(partial)).html;assert.ok(html.includes('树荫充足'));assert.ok(!html.includes('样本不足'));assert.equal((html.match(/review-group mixed/g)||[]).length,0);
   const none=copy();none.stops[1].events[1].reviews.limitations=[];assert.match(validate(none).errors.join(),/使用partial/);
+});
+test('整体正文证据不足时HTML和文本都隐藏口碑',async()=>{
+  const t=copy();t.stops[1].events[1].reviews={status:'insufficient',reasonCode:'author-shortfall',reason:'正文作者不足',research:{status:'complete',attempts:[{keyword:'测试',status:'ok',count:1}],candidateCount:1,acceptedCount:1,authorCount:1}};
+  const html=(await render(t)).html,plan=(await import('../src/render.mjs')).textPlan(t);assert.ok(!html.includes('样本不足'));assert.ok(!plan.includes('样本不足'));assert.ok(!plan.includes('正文作者不足'));assert.equal((html.match(/<h4>小红书网友<\/h4>/g)||[]).length,0);
 });
 test('扫描识别当前Key且工具白名单无发现',async()=>{assert.ok(scanText('prefix-secret-value',['prefix-secret-value']).length);const r=await audit(fileURLToPath(new URL('../',import.meta.url)));assert.deepEqual(r.findings,[]);});
