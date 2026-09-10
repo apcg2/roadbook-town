@@ -34,6 +34,7 @@ node src/cli.mjs init
 ```bash
 node src/cli.mjs poi 地点名 --city 所属城市
 node src/cli.mjs research 城市游玩关键词
+node src/cli.mjs research-food --city 柳州 --dish 螺蛳粉 --dish 柳州酸 --out private/food-liuzhou.json
 node src/cli.mjs research --detail 笔记ID
 node src/cli.mjs research --comments 笔记ID
 node src/cli.mjs research --task 评论任务ID
@@ -42,7 +43,7 @@ node src/cli.mjs route private/trip.json
 node src/cli.mjs plan private/trip.json
 ```
 
-`research`只采集材料，不会伪装为已完成去广告或自动规划。Agent须按来源规则筛选、核验并写入数据。评论是异步采集任务，不是对外发评论。查询默认不再单独询问费用，不自动充值，失败不无限重试。
+`research`与`research-food`只采集材料，不会伪装为已完成去广告或自动规划。美食先查地名＋美食类关键词，候选不足或关联不清时再查地名＋菜品；Redfox仍不足可用当地政府或文旅官方资料补足。Agent须按来源规则筛选、核验并写入数据。评论是异步采集任务，不是对外发评论。查询默认不再单独询问费用，不自动充值，失败不无限重试。
 
 用户确认文本后：
 

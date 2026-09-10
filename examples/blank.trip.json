@@ -5,6 +5,11 @@
   "title": "",
   "startDate": "",
   "endDate": "",
+  "templateRules": {
+    "visitAttractions": "每个途中城市2—3个；只有1个时填写sightShortfallReason",
+    "visitFoods": "每个途中城市恰好5项且每项有有效sourceIds",
+    "attractionIdentity": "每个游玩地点填写canonicalAttractionId"
+  },
   "provinces": [],
   "places": [],
   "sources": [],

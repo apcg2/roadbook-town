@@ -9,11 +9,12 @@ import { assertValid, validate, hash, planHash } from './model.mjs';
 import { render, textPlan } from './render.mjs';
 import { audit, scanText } from './audit.mjs';
 import { createAmap } from './providers/amap.mjs';
-import { createRedfox } from './providers/redfox.mjs';
+import { createRedfox, researchFood } from './providers/redfox.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const [command,...args]=process.argv.slice(2);
 const flag=name=>{const index=args.indexOf(name);return index<0?undefined:args[index+1];};
+const flags=name=>args.flatMap((value,index)=>value===name&&args[index+1]?[args[index+1]]:[]);
 const json=async p=>JSON.parse(await readFile(p,'utf8'));
 async function save(path,value){await mkdir(dirname(path),{recursive:true});await writeFile(path,typeof value==='string'?value:JSON.stringify(value,null,2)+'\n',{mode:0o600});}
 async function env(){
@@ -71,6 +72,12 @@ async function main(){
     else {if(!args[0])throw new Error('需提供关键词');data=await r.search(args[0]);}
     await save(flag('--out')||join(root,'private/research.json'),{provider:'redfox',queriedAt:new Date().toISOString(),untrusted:true,data});console.log('查询材料已保存到私有文件；须人工/Agent筛选并保留来源，不能直接当作推荐。');return;
   }
+  if(command==='research-food'){
+    const city=flag('--city');if(!city)throw new Error('用法：research-food --city 城市 [--dish 菜品] [--out 私有文件]');
+    const results=await researchFood(createRedfox({key:process.env.REDFOX_API_KEY}),city,flags('--dish'));
+    await save(flag('--out')||join(root,'private/research-food.json'),{provider:'redfox',scope:'food',city,queriedAt:new Date().toISOString(),untrusted:true,results});
+    console.log(`已保存${results.length}组美食查询；须核对目的地关联、去广告和菜品去重，Redfox不足时使用当地官方资料补足。`);return;
+  }
   if(command==='preview'){
     const file=resolve(args[0]||join(root,'output/demo/index.html'));
     await access(file);const port=Number(flag('--port')||4173);
@@ -94,7 +101,7 @@ async function main(){
     if(!verified)throw new Error('上传已执行，但生产地址尚未核对一致；请核查部署状态后再宣布成功');
     await save(join(root,'private/publication.json'),{project,url,htmlHash:hash(result.html),publishedAt:new Date().toISOString()});console.log(`发布并核对成功：${url}`);return;
   }
-  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID|--comments ID|--task ID] | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
+  console.log('路书小镇 · roadbook-town\n命令：doctor | init [文件] | demo | validate 文件 [--route] [--approved] | poi 关键词 --city 城市 | research 关键词 [--detail ID|--comments ID|--task ID] | research-food --city 城市 [--dish 菜品] | route 文件 | plan 文件 | approve-plan 文件 --user-confirmed | render 文件 | preview [HTML] | audit | deploy 文件 --project 名称 --html-sha 哈希 --user-confirmed\n先阅读 README.md 和 AGENTS.md。');
 }
 main().catch(error=>{
   let message=String(error.message||'操作失败');for(const key of [process.env.AMAP_WEB_SERVICE_KEY,process.env.REDFOX_API_KEY])if(key)message=message.split(key).join('[已隐藏]');

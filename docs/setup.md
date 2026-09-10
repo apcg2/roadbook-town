@@ -10,6 +10,8 @@
 
 本工具制作时使用 `/v5/place/text`、`/v3/config/district`、`/v5/direction/driving`；推荐策略32、普通汽车0，要求polyline和cost。逐相邻点算路，避免途经点上限并保留每次往返；用同一方案的距离与折线。无JS地图，故无需JS Key或安全密钥。
 
+高德账号QPS上限按3次/秒处理。工具在同一进程内将请求间隔设为至少350ms，并对瞬时QPS错误最多退避重试2次。Agent不得并行运行多个`poi`或`route`命令，因为不同进程不能共享限速队列；日额度或权限错误不会通过重试解决。
+
 官方文档：https://lbs.amap.com/api/webservice/guide/api/newroute
 
 ## Redfox

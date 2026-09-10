@@ -8,6 +8,7 @@ export const dateValid = d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.tes
 export const coordValid = c => Array.isArray(c) && c.length === 2 && c.every(Number.isFinite) && c[0] >= 73 && c[0] <= 136 && c[1] >= 18 && c[1] <= 54;
 export const periods = ['早上','上午','中午','下午','傍晚','晚上'];
 export const icons = ['town','mountains','lake','cave','river','village','hamlet','bridge','skyline','arcade'];
+export const normalizeLabel = value => String(value ?? '').normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu,'');
 // `mapLabels` only controls collision-free SVG text placement. It cannot alter
 // dates, stops, places, route coordinates, or any approved travel content.
 export function planHash(trip) { const { approval, mapLabels, ...content } = trip; return hash(content); }
@@ -66,6 +67,7 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
     if (p.poiId) check(/^[A-Za-z0-9]+$/.test(p.poiId), `${p.id} POI ID无效`);
   }
   let previous = '', nightDates = new Set(), playCounts = new Map();
+  const attractionsByCity=new Map();
   for (const [i, stop] of stops.entries()) {
     check(idPattern.test(stop.id || ''), '到访段ID无效');
     const city = byId.get(stop.placeId);
@@ -78,9 +80,18 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
     check(stop.role === (i === 0 ? 'start' : i === stops.length-1 ? 'end' : 'visit'), `${stop.id} 首尾角色无效`);
     if (stop.role === 'visit') check(coordValid(city?.wgs84), `${stop.id} 缺少独立天气坐标`);
     if (stop.role !== 'visit') check(!(stop.foods || []).length, '首尾专用节点不显示美食');
+    if (stop.role === 'visit') {
+      const playTotal=(stop.events || []).filter(e=>e.type==='play').length;
+      check(playTotal >= 1 && playTotal <= 3, `${city?.name || stop.id} 应安排2—3个不同景点（当前${playTotal}个）；若时间或可靠资料仅支持1个，须填写 sightShortfallReason`);
+      if(playTotal===1)check(typeof stop.sightShortfallReason==='string' && stop.sightShortfallReason.trim().length>0, `${city?.name || stop.id} 仅安排1个景点时必须填写 sightShortfallReason`);
+      check((stop.foods || []).length===5, `${city?.name || stop.id} 必须推荐恰好5项地方美食（当前${(stop.foods || []).length}项）；请补查“地名＋菜品”或当地官方资料`);
+    }
+    const foodNames=new Set();
     for (const food of stop.foods || []) {
       check(typeof food.name === 'string' && food.name.length > 0 && food.name.length <= 30, '美食名称无效');
-      if (!trip.demo) check((food.sourceIds || []).some(id => sources.has(id)), `${food.name} 缺少来源记录`);
+      const foodKey=normalizeLabel(food.name).replace(normalizeLabel(city?.name).replace(/[市县区]$/u,''),'');
+      check(foodKey && !foodNames.has(foodKey), `${city?.name || stop.id} 存在重复美食：${food.name}`);foodNames.add(foodKey);
+      if (!trip.demo) check((food.sourceIds || []).some(id => sources.get(id)?.accepted===true), `${food.name} 缺少已接受的来源记录`);
     }
     check(Array.isArray(stop.events) && stop.events.length > 0, `${stop.id} 缺少事件`);
     for (const e of stop.events || []) {
@@ -98,6 +109,15 @@ export function validate(trip, { requireRoute = false, requireApproval = false }
       }
       if (e.type === 'play') {
         check(stop.role === 'visit', '首尾专用节点不安排游玩');
+        const attraction=byId.get(e.placeId), cityKey=stop.placeId;
+        if(!attractionsByCity.has(cityKey))attractionsByCity.set(cityKey,{place:new Set(),canonical:new Set(),poi:new Set(),name:new Set()});
+        const seen=attractionsByCity.get(cityKey), canonical=attraction?.canonicalAttractionId, poi=attraction?.poiId, name=normalizeLabel(attraction?.name);
+        check(typeof canonical==='string' && idPattern.test(canonical), `${city?.name || stop.id} 的${attraction?.name || e.placeId}缺少有效 canonicalAttractionId；请核验景点并填写稳定规范标识`);
+        check(!seen.place.has(e.placeId), `${city?.name || stop.id} 重复安排同一景点：${attraction?.name || e.placeId}`);
+        if(canonical)check(!seen.canonical.has(canonical), `${city?.name || stop.id} 重复安排同一规范景点：${attraction?.name || canonical}`);
+        if(poi)check(!seen.poi.has(poi), `${city?.name || stop.id} 重复安排同一高德POI：${attraction?.name || poi}`);
+        if(name)check(!seen.name.has(name), `${city?.name || stop.id} 重复安排同名景点：${attraction?.name}`);
+        seen.place.add(e.placeId);if(canonical)seen.canonical.add(canonical);if(poi)seen.poi.add(poi);if(name)seen.name.add(name);
         playCounts.set(e.date,(playCounts.get(e.date)||0)+1);
         check(typeof e.summary === 'string' && [...e.summary].length > 0 && [...e.summary].length <= 15, '景点介绍需1—15字');
         check(typeof e.duration === 'string' && e.duration.length > 0, '缺少预计游玩');

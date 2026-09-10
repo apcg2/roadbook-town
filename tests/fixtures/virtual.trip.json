@@ -73,7 +73,8 @@
         117.01599999999999,
         30.718
       ],
-      "verified": false
+      "verified": false,
+      "canonicalAttractionId": "forest-walk"
     },
     {
       "id": "bank",
@@ -90,7 +91,8 @@
         117.896,
         30.298000000000002
       ],
-      "verified": false
+      "verified": false,
+      "canonicalAttractionId": "reed-bank-path"
     }
   ],
   "sources": [],
@@ -131,8 +133,17 @@
         {
           "name": "示例面食",
           "sourceIds": []
+        },
+        {
+          "name": "示例蒸饺",
+          "sourceIds": []
+        },
+        {
+          "name": "示例甜汤",
+          "sourceIds": []
         }
       ],
+      "sightShortfallReason": "虚构夹具仅保留一个景点以测试数量下限",
       "events": [
         {
           "type": "arrive",
@@ -206,8 +217,17 @@
         {
           "name": "示例米团",
           "sourceIds": []
+        },
+        {
+          "name": "示例鱼汤",
+          "sourceIds": []
+        },
+        {
+          "name": "示例酥饼",
+          "sourceIds": []
         }
       ],
+      "sightShortfallReason": "虚构夹具仅保留一个景点以测试数量下限",
       "events": [
         {
           "type": "arrive",

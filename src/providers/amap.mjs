@@ -1,14 +1,33 @@
 import { jsonRequest } from './http.mjs';
 import { routeStops, routeInputHash, assertValid, coordValid } from '../model.mjs';
 
-export function createAmap({key,fetchImpl=fetch}={}){
+export function createAmap({key,fetchImpl=fetch,now=Date.now,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),minIntervalMs=350}={}){
   if(!key)throw new Error('未配置 AMAP_WEB_SERVICE_KEY；参考 docs/setup.md');
+  let gate=Promise.resolve(),nextStart=0;
+  function throttle(){
+    const turn=gate.then(async()=>{
+      const wait=Math.max(0,nextStart-now());if(wait)await sleep(wait);
+      nextStart=Math.max(nextStart,now())+minIntervalMs;
+    });
+    gate=turn.catch(()=>{});return turn;
+  }
   async function call(path,params){
-    const url=new URL(`https://restapi.amap.com/${path}`);
-    url.search=new URLSearchParams({...params,key}).toString();
-    const r=await jsonRequest(url,{fetchImpl});
-    if(r.status!=='1')throw new Error(`高德接口失败（代码 ${String(r.infocode||'unknown').replace(/[^0-9a-z_-]/gi,'')}），请检查权限、额度与参数`);
-    return r;
+    const rateCodes=new Set(['10019','10020','10021']);
+    for(let attempt=0;attempt<3;attempt++){
+      await throttle();
+      const url=new URL(`https://restapi.amap.com/${path}`);
+      url.search=new URLSearchParams({...params,key}).toString();
+      // Keep retries in this provider so every Amap attempt passes through the
+      // shared process-local start queue.
+      const r=await jsonRequest(url,{fetchImpl,attempts:1});
+      if(r.status==='1')return r;
+      const code=String(r.infocode||'unknown').replace(/[^0-9a-z_-]/gi,'');
+      if(rateCodes.has(code)&&attempt<2){await sleep(attempt===0?1000:2000);continue;}
+      if(rateCodes.has(code))throw new Error(`高德接口触发QPS限制（代码 ${code}），已限速并重试2次；请稍后再试，且不要并行启动多个高德命令`);
+      if(['10003','10044'].includes(code))throw new Error(`高德接口日调用量已用尽（代码 ${code}），请检查账号额度或次日再试`);
+      if(['10002','10012','10041'].includes(code))throw new Error(`高德接口权限不可用（代码 ${code}），请检查Web服务Key及路径规划、POI或行政区权限`);
+      throw new Error(`高德接口失败（代码 ${code}），请检查Key、参数与服务状态`);
+    }
   }
   return {
     async search(keyword,city){return (await call('v5/place/text',{keywords:keyword,region:city,city_limit:'true',page_size:'10'})).pois||[];},

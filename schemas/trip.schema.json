@@ -98,6 +98,10 @@
           },
           "poiId": {
             "type": "string"
+          },
+          "canonicalAttractionId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
           }
         }
       }
@@ -349,8 +353,42 @@
           "entryPlaceId": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "sightShortfallReason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "role": {
+                  "const": "visit"
+                }
+              },
+              "required": [
+                "role"
+              ]
+            },
+            "then": {
+              "properties": {
+                "foods": {
+                  "minItems": 5,
+                  "maxItems": 5
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "foods": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "sources": {

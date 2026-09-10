@@ -1,5 +1,21 @@
 import { jsonRequest } from './http.mjs';
 
+export function foodSearchQueries(city,dishes=[]){
+  const place=String(city||'').trim();if(!place)throw new Error('美食检索缺少城市');
+  const clean=dishes.map(value=>String(value||'').trim()).filter(Boolean);
+  const dishQueries=clean.map(dish=>dish.replace(place,'').trim()).filter(Boolean).map(dish=>`${place} ${dish}`);
+  return [...new Set([`${place} 美食`,`${place} 特色美食`,`${place} 特色小吃`,...dishQueries])];
+}
+
+export async function researchFood(redfox,city,dishes=[]){
+  const results=[];
+  for(const keyword of foodSearchQueries(city,dishes)){
+    try{const data=await redfox.search(keyword);const items=Array.isArray(data?.list)?data.list:Array.isArray(data?.items)?data.items:[];results.push({keyword,status:'ok',count:items.length,data});}
+    catch(error){results.push({keyword,status:'error',count:0,error:String(error.message||'查询失败')});}
+  }
+  return results;
+}
+
 // Endpoints/headers verified against the provider's public SDK on 2026-09-09.
 // No provider SDK source is bundled. The returned data remains untrusted research material.
 export function createRedfox({key,fetchImpl=fetch}={}){

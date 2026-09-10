@@ -149,6 +149,7 @@
         23.043082
       ],
       "poiId": "B03017UJB2",
+      "canonicalAttractionId": "dongguan-keyuan",
       "verified": true,
       "verification": {
         "file": "keyuan.json",
@@ -168,6 +169,7 @@
         23.127063
       ],
       "poiId": "B00140H88E",
+      "canonicalAttractionId": "guangzhou-chen-clan-academy",
       "verified": true,
       "verification": {
         "file": "chen.json",
@@ -187,6 +189,7 @@
         23.106923
       ],
       "poiId": "B0FFMHAASX",
+      "canonicalAttractionId": "guangzhou-shamian-island",
       "verified": true,
       "verification": {
         "file": "shamian.json",
@@ -206,6 +209,7 @@
         23.714413
       ],
       "poiId": "B0MA2CSBIS",
+      "canonicalAttractionId": "qingyuan-feixia-mountain",
       "verified": true,
       "verification": {
         "file": "feixia.json",
@@ -225,6 +229,7 @@
         23.72296
       ],
       "poiId": "B0FFIL4JVG",
+      "canonicalAttractionId": "qingyuan-feilai-lake",
       "verified": true,
       "verification": {
         "file": "feilai.json",
@@ -244,6 +249,7 @@
         24.643119
       ],
       "poiId": "B0FFL4PLL8",
+      "canonicalAttractionId": "shaoguan-nanhua-temple",
       "verified": true,
       "verification": {
         "file": "nanhua.json",
@@ -263,6 +269,7 @@
         25.045401
       ],
       "poiId": "B0FFF33ZR5",
+      "canonicalAttractionId": "shaoguan-danxia-mountain",
       "verified": true,
       "verification": {
         "file": "danxia.json",
@@ -282,6 +289,7 @@
         23.739072
       ],
       "poiId": "B0FFK6P1GF",
+      "canonicalAttractionId": "heyuan-taiping-old-street",
       "verified": true,
       "verification": {
         "file": "taiping.json",
@@ -301,6 +309,7 @@
         23.774184
       ],
       "poiId": "B02FA0O2AO",
+      "canonicalAttractionId": "heyuan-wanlu-lake",
       "verified": true,
       "verification": {
         "file": "wanlu.json",
@@ -332,6 +341,20 @@
       "accepted": true
     },
     {
+      "id": "food-dongguan-3",
+      "provider": "official",
+      "url": "https://nyncj.dg.gov.cn/nyncj/gfgs/content/post_3945672.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
+      "id": "food-dongguan-4",
+      "provider": "official",
+      "url": "https://nyncj.dg.gov.cn/nyncj/gfgs/content/post_3945672.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
       "id": "food-guangzhou-0",
       "provider": "official",
       "url": "https://sw.gz.gov.cn/gkmlpt/content/10/10466/post_10466752.html",
@@ -350,6 +373,20 @@
       "provider": "official",
       "url": "https://sw.gz.gov.cn/gkmlpt/content/10/10466/post_10466752.html",
       "queriedAt": "2026-09-09",
+      "accepted": true
+    },
+    {
+      "id": "food-guangzhou-3",
+      "provider": "official",
+      "url": "https://www.gz.gov.cn/zlgz/whgz/content/post_8637756.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
+      "id": "food-guangzhou-4",
+      "provider": "official",
+      "url": "https://www.gz.gov.cn/zlgz/whgz/content/post_8637756.html",
+      "queriedAt": "2026-09-10",
       "accepted": true
     },
     {
@@ -374,6 +411,20 @@
       "accepted": true
     },
     {
+      "id": "food-qingyuan-3",
+      "provider": "official",
+      "url": "https://www.gdqy.gov.cn/jjqy/xxly/xms/content/post_1012051.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
+      "id": "food-qingyuan-4",
+      "provider": "official",
+      "url": "https://www.gdqy.gov.cn/jjqy/xxly/xms/content/post_1012051.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
       "id": "food-shaoguan-0",
       "provider": "official",
       "url": "https://www.sg.gov.cn/sgly/yzsg/czsg/sgms/content/post_1983760.html",
@@ -395,6 +446,20 @@
       "accepted": true
     },
     {
+      "id": "food-shaoguan-3",
+      "provider": "official",
+      "url": "https://www.sg.gov.cn/bmpdlm/whgdlvtyjj/hdjl/cjwt/ly/content/post_2569166.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
+      "id": "food-shaoguan-4",
+      "provider": "official",
+      "url": "https://www.sg.gov.cn/bmpdlm/whgdlvtyjj/hdjl/cjwt/ly/content/post_2569166.html",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
       "id": "food-heyuan-0",
       "provider": "official",
       "url": "https://www.heyuan.gov.cn/zjhy/",
@@ -413,6 +478,20 @@
       "provider": "official",
       "url": "https://www.heyuan.gov.cn/zwgk/gzbg/content/mpost_589347.html",
       "queriedAt": "2026-09-09",
+      "accepted": true
+    },
+    {
+      "id": "food-heyuan-3",
+      "provider": "official",
+      "url": "https://www.heyuan.gov.cn/zjhy/",
+      "queriedAt": "2026-09-10",
+      "accepted": true
+    },
+    {
+      "id": "food-heyuan-4",
+      "provider": "official",
+      "url": "https://www.heyuan.gov.cn/zjhy/",
+      "queriedAt": "2026-09-10",
       "accepted": true
     },
     {
@@ -488,8 +567,21 @@
           "sourceIds": [
             "food-dongguan-2"
           ]
+        },
+        {
+          "name": "糖环",
+          "sourceIds": [
+            "food-dongguan-3"
+          ]
+        },
+        {
+          "name": "油角",
+          "sourceIds": [
+            "food-dongguan-4"
+          ]
         }
       ],
+      "sightShortfallReason": "首日从深圳出发，抵达后的可用游玩时间有限",
       "events": [
         {
           "type": "arrive",
@@ -550,6 +642,18 @@
           "name": "艇仔粥",
           "sourceIds": [
             "food-guangzhou-2"
+          ]
+        },
+        {
+          "name": "叉烧包",
+          "sourceIds": [
+            "food-guangzhou-3"
+          ]
+        },
+        {
+          "name": "干蒸烧卖",
+          "sourceIds": [
+            "food-guangzhou-4"
           ]
         }
       ],
@@ -654,6 +758,18 @@
           "sourceIds": [
             "food-qingyuan-2"
           ]
+        },
+        {
+          "name": "刀切糍",
+          "sourceIds": [
+            "food-qingyuan-3"
+          ]
+        },
+        {
+          "name": "乌鬃鹅",
+          "sourceIds": [
+            "food-qingyuan-4"
+          ]
         }
       ],
       "events": [
@@ -728,6 +844,18 @@
           "name": "铜勺饼",
           "sourceIds": [
             "food-shaoguan-2"
+          ]
+        },
+        {
+          "name": "周陂大肉",
+          "sourceIds": [
+            "food-shaoguan-3"
+          ]
+        },
+        {
+          "name": "新丰鹅醋钵",
+          "sourceIds": [
+            "food-shaoguan-4"
           ]
         }
       ],
@@ -837,6 +965,18 @@
           "name": "河源猪脚粉",
           "sourceIds": [
             "food-heyuan-2"
+          ]
+        },
+        {
+          "name": "客家酿三宝",
+          "sourceIds": [
+            "food-heyuan-3"
+          ]
+        },
+        {
+          "name": "薯丝煲",
+          "sourceIds": [
+            "food-heyuan-4"
           ]
         }
       ],
@@ -150172,7 +150312,7 @@
     ]
   },
   "approval": {
-    "planHash": "f354e9b96946b9c3c68e8c11440b2051ed7fbd921cb5af9554c75f92aff2aa2e",
+    "planHash": "ed56e89d8dbe7849879e8c76d6fb1b9e136dfe31347a4b532b8f3a48badd1dba",
     "confirmedAt": "2026-09-09T14:40:48.996Z"
   }
 }
